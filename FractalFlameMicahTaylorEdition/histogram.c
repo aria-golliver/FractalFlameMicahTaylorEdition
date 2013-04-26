@@ -16,19 +16,7 @@
 #include "histogram.h"
 
 
-static histocell *h;
 
-#define swid 1920
-#define shei 1080
-#define ss 4
-
-#define hwid (swid * ss)
-#define hhei (shei * ss)
-#define xshrink 45.0
-#define yshrink 45.0
-
-#define xoffset 0.0
-#define yoffset 3.0
 
 __m128 xshrinkvec = { xshrink, xshrink, xshrink, xshrink };
 __m128 yshrinkvec = { yshrink, yshrink, yshrink, yshrink };
@@ -62,34 +50,13 @@ typedef union {
 
 f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128 bvec, const i32 th_id){
 	if(threadHits[th_id]++ > 20){
-		const f128 xvec = xyvec.x;
-		const f128 yvec = xyvec.y;
-		f128 xarr;
-		f128 yarr;
-		f128 rarr;
-		f128 garr;
-		f128 barr;
-
-		xarr = xvec;
-		yarr = yvec;
-		rarr = rvec;
-		garr = gvec;
-		barr = bvec;
+		f128 xarr = xyvec.x;
+		f128 yarr = xyvec.y;
+		const f128 rarr = rvec;
+		const f128 garr = gvec;
+		const f128 barr = bvec;
 
 		i32 wasNaN = 0;
-
-		f128 ixvec;
-		f128 iyvec;
-		ixvec.v = vadd(
-					halfhwid,
-					vmul(
-						hwidShrunk,
-						vadd(xvec.v, xoffsetvec)));
-		iyvec.v = vadd(
-					halfhhei,
-					vmul(
-						hheiShrunk,
-						vadd(yvec.v, yoffsetvec)));
 
 		for (i32 i = 0; i < 4; i++){
 			f32u32 x;
@@ -100,14 +67,15 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
 			f32 r = rarr.f[i];
 			f32 g = garr.f[i];
 			f32 b = barr.f[i];
-			if(((x.u & 0x7f800000) != 0x7f800000)  && ((y.u & 0x7f800000) != 0x7f800000) ){
-				u64 ix = ixvec.f[i];
-				u64 iy = iyvec.f[i];
+			const u32 NaN = 0x7f800000;
+			if(((x.u & NaN) != NaN)  & ((y.u & NaN) != NaN) ){
+				u64 ix = (xarr.f[i] + xoffset) * (hwid / xshrink) + (hwid / 2);
+				u64 iy = (yarr.f[i] + yoffset) * (hhei / yshrink) + (hhei / 2);
 				u64 cell = ix + (iy * hwid);
-				if(ix >= 0 && ix < hwid && iy >= 0 && iy < hhei && cell < hwid * hhei && cell >= 0){
+				if(ix < hwid && iy < hhei){
 					f32 cellr, cellg, cellb;
 					u64 cella;
-
+					
 					cellr = h[cell].r;
 					cellg = h[cell].g;
 					cellb = h[cell].b;
@@ -145,7 +113,7 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
 }
 
 void saveimage(){
-	printf("Good hits: %d\t Bad hits: %d\t %f\n", goodHits, badHits, (f32)goodHits/(badHits > 0 ? badHits : 1));
+	printf("Good hits: %u\t Bad hits: %u\t %f\n", goodHits, badHits, (f32)goodHits/(badHits > 0 ? badHits : 1));
 
 	bmpfile_t *bmp;
 
@@ -156,14 +124,14 @@ void saveimage(){
 	}
 
 	if((bmp = bmp_create(hwid, hhei, 24)) == NULL){
-		printf("Invalid depth value: %s.\n", 24);
+		printf("Invalid depth value: %d.\n", 24);
 		exit(1);
 	}
 
 	printf("generating image");
 
 	cilk_for (i32 i = 0; i < hwid * hhei; i++){
-		f32 a = (f32)(log((f64)h[i].a) / log((f32)amax));
+		f64 a = (log((f64)h[i].a) / log((f64)amax));
 
 		u8 r = h[i].r * 0xFF * a;
 		u8 g = h[i].g * 0xFF * a;
@@ -181,8 +149,8 @@ void saveimage(){
 
 	printf("saving image... ");
 	bmp_save(bmp, "fractal.bmp");
+	bmp_destroy(bmp);
 	printf("done\n");
 	printf("\n");
 	printf("press enter to quit\n");
-
 }

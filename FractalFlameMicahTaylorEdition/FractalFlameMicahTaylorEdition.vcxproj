@@ -150,6 +150,8 @@
       <VectorizerDiagnosticLevel>LoopsSuccessVectorized1</VectorizerDiagnosticLevel>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <OpenMP>GenerateParallelCode</OpenMP>
+      <OptimizationDiagnosticLevel>Maximum</OptimizationDiagnosticLevel>
+      <EmitOptimizationDiagnosticsToFile>true</EmitOptimizationDiagnosticsToFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

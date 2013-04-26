@@ -9,4 +9,18 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
 
 void saveimage();
 
+static histocell *h;
+
+#define swid 1920
+#define shei 1080
+#define ss 6
+
+#define hwid (swid * ss)
+#define hhei (shei * ss)
+#define xshrink 35.0
+#define yshrink 35.0
+
+#define xoffset 0.0
+#define yoffset 0.0
+
 #endif

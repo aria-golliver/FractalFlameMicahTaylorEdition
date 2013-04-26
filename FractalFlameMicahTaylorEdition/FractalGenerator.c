@@ -27,6 +27,7 @@ static affinematrix am[n_affine_matrix];
 static affinematrix * affine_jump_table[jump_table_size];
 
 int main(i32 argc, i8 **argv){
+	while(1){
 	printf("allocating memory... ");
 	histoinit();
 	affineinit();
@@ -54,15 +55,15 @@ int main(i32 argc, i8 **argv){
 
 		printf("thread id: %d\n", th_id);
 		_sleep(1000);
-		for(u32 j = 0; j < 3 * 100000; j++){
+		for(u32 j = 0; j < 30 * 1000000; j++){
 			// seed the random number generator every so often 
 			srand_sse(rdrand_u32(), th_id);
 
-			if(j % 100000 == 0){
-				printf("...%d", j/100000);
+			if(j % 1000000 == 0){
+				printf("...%u", j/1000000);
 			}
 
-			for(u64 i = 0; i < 100; i++){
+			for(u64 i = 0; i < 10; i++){
 				affinematrix *am_itt[4];
 				u32 jumpTable[4];
 				
@@ -123,13 +124,13 @@ int main(i32 argc, i8 **argv){
 				__m128 sumvecy = {0, 0, 0, 0};
 
 
-				//v1;
+				v1;
 				//v2;
 				//v3;
-				//v4;
+				v4;
 				//v5;
 				//v6;
-				v7;
+				//v7;
 				//v8;
 				v9;
 				//v10;
@@ -151,7 +152,8 @@ int main(i32 argc, i8 **argv){
 
 	printf(" done took %f seconds\n", (f64)(end - start)/(f64)CLOCKS_PER_SEC);
 	saveimage();
-	getchar();
+	}
+	//getchar();
 }
 
 void affineinit(){

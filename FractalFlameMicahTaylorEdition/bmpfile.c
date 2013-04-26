@@ -209,7 +209,7 @@ bmp_create_standard_color_table(bmpfile_t *bmp)
 static void
 bmp_create_grayscale_color_table(bmpfile_t *bmp)
 {
-  int i;
+  uint32_t i;
   uint8_t step_size;
 
   if (!bmp->colors) return;
@@ -234,7 +234,7 @@ bmp_malloc_colors(bmpfile_t *bmp)
 {
   bmp->dib.ncolors = uint32_pow(2, bmp->dib.depth);
   if (bmp->dib.depth == 1 || bmp->dib.depth == 4 || bmp->dib.depth == 8) {
-    bmp->colors = malloc(sizeof(rgb_pixel_t) * bmp->dib.ncolors);
+    bmp->colors = (rgb_pixel_t *) malloc(sizeof(rgb_pixel_t) * bmp->dib.ncolors);
     bmp_create_standard_color_table(bmp);
   }
 }
@@ -255,11 +255,11 @@ bmp_free_colors(bmpfile_t *bmp)
 static void
 bmp_malloc_pixels(bmpfile_t *bmp)
 {
-  int i, j;
+  uint32_t i, j;
 
-  bmp->pixels = malloc(sizeof(rgb_pixel_t *) * bmp->dib.width);
+  bmp->pixels = (rgb_pixel_t **) malloc(sizeof(rgb_pixel_t *) * bmp->dib.width);
   cilk_for (i = 0; i < bmp->dib.width; ++i) {
-    bmp->pixels[i] = malloc(sizeof(rgb_pixel_t) * bmp->dib.height);
+    bmp->pixels[i] = (rgb_pixel_t *) malloc(sizeof(rgb_pixel_t) * bmp->dib.height);
     for (j = 0; j < bmp->dib.height; ++j) {
       bmp->pixels[i][j].red = 255;
       bmp->pixels[i][j].green = 255;
@@ -275,7 +275,7 @@ bmp_malloc_pixels(bmpfile_t *bmp)
 static void
 bmp_free_pixels(bmpfile_t *bmp)
 {
-  int i;
+  uint32_t i;
 
   for (i = 0; i < bmp->dib.width; ++i)
     free(bmp->pixels[i]);
@@ -298,7 +298,7 @@ bmp_create(uint32_t width, uint32_t height, uint32_t depth)
       depth != 32)
     return NULL;
 
-  result = malloc(sizeof(bmpfile_t));
+  result = (bmpfile_t *) malloc(sizeof(bmpfile_t));
 
   memset(result, 0, sizeof(bmpfile_t));
 
@@ -502,7 +502,7 @@ static void
 bmp_write_palette(bmpfile_t *bmp, FILE *fp)
 {
   if (bmp->dib.depth == 1 || bmp->dib.depth == 4 || bmp->dib.depth == 8) {
-    int i;
+    uint32_t i;
     for (i = 0; i < bmp->dib.ncolors; ++i)
       fwrite(&(bmp->colors[i]), sizeof(rgb_pixel_t), 1, fp);
   }
@@ -534,7 +534,7 @@ bmp_write_palette(bmpfile_t *bmp, FILE *fp)
 static int
 find_closest_color(bmpfile_t *bmp, rgb_pixel_t pixel)
 {
-  int i, best = 0;
+  uint32_t i, best = 0;
   int best_match = 999999;
 
   for (i = 0; i < bmp->dib.ncolors; ++i) {
@@ -595,7 +595,7 @@ static void
 bmp_get_row_data_for_8(bmpfile_t *bmp, unsigned char *buf, size_t buf_len,
 		       uint32_t row)
 {
-  int i;
+  uint32_t i;
 
   if (bmp->dib.width > buf_len) return;
 
@@ -607,7 +607,7 @@ static void
 bmp_get_row_data_for_24(bmpfile_t *bmp, unsigned char *buf, size_t buf_len,
 			uint32_t row)
 {
-  int i;
+  uint32_t i;
 
   if (bmp->dib.width * 3 > buf_len) return;
 
@@ -619,7 +619,7 @@ static void
 bmp_get_row_data_for_32(bmpfile_t *bmp, unsigned char *buf, size_t buf_len,
 			uint32_t row)
 {
-  int i;
+  uint32_t i;
 
   if (bmp->dib.width * 4 > buf_len) return;
 
