@@ -4,6 +4,8 @@
 
 *.bmp
 FractalFlameMicahTaylorEdition\fractal.bmp
+*Amplifier*
+pingme.txt
 
 #################
 ## Eclipse
