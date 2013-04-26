@@ -1,0 +1,38 @@
+#ifndef __VMATH_H__
+#define __VMATH_H__ __VMATH_H__
+
+#include <immintrin.h>
+#include "datatypes.h"
+/*
+static __forceinline __m128 vadd(const f128 a, const f128 b) { return _mm_add_ps(a.v, b.v); }
+static __forceinline __m128 vsub(const f128 a, const f128 b) { return _mm_sub_ps(a.v, b.v); }
+static __forceinline __m128 vmul(const f128 a, const f128 b) { return _mm_mul_ps(a.v, b.v); }
+static __forceinline __m128 vdiv(const f128 a, const f128 b) { return _mm_div_ps(a.v, b.v); }
+
+
+static __forceinline __m128 vsqrt(const f128 a) { return _mm_sqrt_ps(a.v); }
+static __forceinline __m128 vinvsqrt(const f128 a) { return _mm_invsqrt_ps(a.v); }
+static __forceinline __m128 vrsqrt(const f128 a) { return _mm_rsqrt_ps(a.v); }
+
+
+static __forceinline __m128 vsin(const f128 a) { return _mm_sin_ps(a.v); }
+static __forceinline __m128 vcos(const f128 a) { return _mm_cos_ps(a.v); }
+static __forceinline __m128 vatan2(const f128 a, const f128 b) { return _mm_atan2_ps(a.v, b.v); }
+
+*/
+static __forceinline __m128 vadd(const __m128 a, const __m128 b) { return _mm_add_ps(a, b); }
+static __forceinline __m128 vsub(const __m128 a, const __m128 b) { return _mm_sub_ps(a, b); }
+static __forceinline __m128 vmul(const __m128 a, const __m128 b) { return _mm_mul_ps(a, b); }
+static __forceinline __m128 vdiv(const __m128 a, const __m128 b) { return _mm_div_ps(a, b); }
+
+
+static __forceinline __m128 vsqrt(const __m128 a) { return _mm_sqrt_ps(a); }
+static __forceinline __m128 vinvsqrt(const __m128 a) { return _mm_invsqrt_ps(a); }
+static __forceinline __m128 vrsqrt(const __m128 a) { return _mm_rsqrt_ps(a); }
+
+
+static __forceinline __m128 vsin(const __m128 a) { return _mm_sin_ps(a); }
+static __forceinline __m128 vcos(const __m128 a) { return _mm_cos_ps(a); }
+static __forceinline __m128 vatan2(const __m128 a, const __m128 b) { return _mm_atan2_ps(a, b); }
+
+#endif
