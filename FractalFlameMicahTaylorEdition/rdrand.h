@@ -3,38 +3,45 @@
 
 #include "datatypes.h"
 #include "systemconfig.h"
-
+#include <stdio.h>
 #if __RDRAND_AVAILIABLE__ != 0
-inline u16 rdrand_u16(){
-    __asm rdrand ax;
+#define RDRAND_SUCCESS 1
+
+inline u16 rdrand_u16(u16 *p){
+    while( _rdrand16_step(p) != RDRAND_SUCCESS);
+    return *p;
 }
 
-inline u32 rdrand_u32(){
-    __asm rdrand eax;
+inline u32 rdrand_u32(u32 *p){
+    while( _rdrand32_step(p) != RDRAND_SUCCESS);
+    return *p;
 }
 
-inline u64 rdrand_u64(){
-    __asm rdrand rax;
+inline u64 rdrand_u64(u64 *p){
+    while( _rdrand64_step(p) != RDRAND_SUCCESS);
+    return *p;
 }
 
-inline i16 rdrand_i16(){
-    __asm rdrand ax;
+inline i16 rdrand_i16(i16 *p){
+    return rdrand_u16((u16 *)p);
 }
 
-inline i32 rdrand_i32(){
-    __asm rdrand eax;
+inline i32 rdrand_i32(i32 *p){
+    return rdrand_u32((u32 *)p);
 }
 
-inline i64 rdrand_i64(){
-    __asm rdrand rax;
+inline i64 rdrand_i64(i64 *p){
+    return rdrand_u64((u64 *)p);
 }
 
-inline f32 rdrand_f32(){
-    return (f32)(((f64)rdrand_i32()) / INT32_MAX);
+inline f32 rdrand_f32(f32 *p){
+    i32 i = rdrand_i32((i32 *)p);
+    return (f32)((f64)i / (f64)INT32_MAX);
 }
 
-inline f64 rdrand_f64(){
-    return ((f64)rdrand_i64()) / INT64_MAX;
+inline f64 rdrand_f64(f64 *p){
+    i64 i = rdrand_i64((i64 *) p);
+    return ((f64)i / (f64)INT64_MAX);
 }
 #else
 #include <stdlib.h>

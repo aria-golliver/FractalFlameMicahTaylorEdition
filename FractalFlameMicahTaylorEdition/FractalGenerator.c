@@ -13,7 +13,7 @@
 #include <omp.h>
 
 #define n_affine_matrix 6
-#define jump_table_size 1024
+#define jump_table_size (1024)
 
 #define abs(x) (x >= 0 ? x : - x)
 
@@ -51,22 +51,23 @@ int main(i32 argc, i8 **argv){
             f128 pointvecy;
             f128tuple xyvec;
 
-            srand_sse(rdrand_u32(), th_id);
+            u32 tmp;
+            srand_sse(rdrand_u32(&tmp), th_id);
 
             rand_sse((unsigned int *)pointvecx.f, th_id);
             rand_sse((unsigned int *)pointvecy.f, th_id);
 
             printf("thread id: %d\n", th_id);
             _sleep(1000);
-            for(u32 j = 0; j < 3 * 1000000; j++){
+            for(u32 j = 0; j < 3 * 10000000; j++){
                 // seed the random number generator every so often
-                srand_sse(rdrand_u32(), th_id);
+                srand_sse(rdrand_u32(&tmp), th_id);
 
-                if(j % 1000000 == 0){
-                    printf("...%u", j/1000000);
+                if(j % 10000000 == 0){
+                    printf("...%u", j/10000000);
                 }
 
-                for(u64 i = 0; i < 10; i++){
+                for(u64 i = 0; i < 1; i++){
                     affinematrix *am_itt[4];
                     u32 jumpTable[4];
 
@@ -151,14 +152,11 @@ int main(i32 argc, i8 **argv){
                     //v14;
                     //v15;
                     //v16;
-                    //v17;
-                    v18;
+                    v17;
+                    //v18;
 
-                    pointvecx.v = sumvecx;
-                    pointvecy.v = sumvecy;
-
-                    xyvec.x = pointvecx;
-                    xyvec.y = pointvecy;
+                    xyvec.x.v = sumvecx;
+                    xyvec.y.v = sumvecy;
 
                     xyvec = histohit(xyvec, colorsetr, colorsetg, colorsetb, th_id);
                     pointvecx = xyvec.x;
@@ -182,16 +180,16 @@ int main(i32 argc, i8 **argv){
 void affineinit(){
     // init matrix values
     for(i32 i = 0; i < n_affine_matrix; i++){
-        am[i].a = rdrand_f32();
-        am[i].b = rdrand_f32();
-        am[i].c = rdrand_f32();
-        am[i].d = rdrand_f32();
-        am[i].e = rdrand_f32();
-        am[i].f = rdrand_f32();
+        am[i].a = rdrand_f32(&am[i].a);
+        am[i].b = rdrand_f32(&am[i].b);
+        am[i].c = rdrand_f32(&am[i].c);
+        am[i].d = rdrand_f32(&am[i].d);
+        am[i].e = rdrand_f32(&am[i].e);
+        am[i].f = rdrand_f32(&am[i].f);
 
-        f32 r = rdrand_f32();
-        f32 g = rdrand_f32();
-        f32 b = rdrand_f32();
+        f32 r = rdrand_f32(&r);
+        f32 g = rdrand_f32(&g);
+        f32 b = rdrand_f32(&b);
         am[i].red = abs(r);
         am[i].green = abs(g);
         am[i].blue = abs(b);
@@ -199,6 +197,7 @@ void affineinit(){
 
     // init jump table
     for(i32 i = 0; i < jump_table_size; i++){
-        affine_jump_table[i] = &(am[rdrand_u32() % n_affine_matrix]);
+        u32 tmp;
+        affine_jump_table[i] = &(am[rdrand_u32(&tmp) % n_affine_matrix]);
     }
 }

@@ -124,9 +124,9 @@
 
 #define v16                                                                         \
     sumvecx = vadd(sumvecx, vmul(vdiv(twovec, vadd(r, onevec)), affinedy));         \
-    sumvecy = vadd(sumvecy, vmul(vdiv(twovec, vadd(r, onevec)), affinedx));
+    sumvecy = vadd(sumvecy, vmul(vdiv(twovec, vadd(r, onevec)), affinedx))
 
-                        
+
 #define v17                                                                         \
     sumvecx = vadd(sumvecx,                                                         \
                 vadd(                                                               \
