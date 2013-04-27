@@ -78,13 +78,13 @@ __forceinline i64 rdrand_i64(i64 *p){
 
 __forceinline f32 rdrand_f32(f32 *p){
     double tmp = rand();
-    *p = (tmp/RAND_MAX)
+    *p = (tmp/RAND_MAX);
     return *p;
 }
 
 __forceinline f64 rdrand_f64(f32 *p){
     double tmp = rand();
-    *p = (tmp/RAND_MAX)
+    *p = (tmp/RAND_MAX);
     return *p;
 }
 #endif
