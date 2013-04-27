@@ -88,7 +88,7 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
 				if(ix < hwid && iy < hhei){
 					f32 cellr, cellg, cellb;
 					u64 cella;
-					
+
 					cellr = h[cell].r;
 					cellg = h[cell].g;
 					cellb = h[cell].b;

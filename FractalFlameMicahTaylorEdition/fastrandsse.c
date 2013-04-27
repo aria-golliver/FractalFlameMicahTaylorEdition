@@ -8,8 +8,6 @@ void srand_sse( unsigned int seed, unsigned int th_id)
 	cur_seed[th_id] = _mm_set_epi32( seed, seed+1, seed, seed+1 );
 }
 
-
-
 void rand_sse( unsigned int* result, unsigned int th_id)
 {
 	__declspec( align(16) ) __m128i cur_seed_split;
@@ -35,8 +33,8 @@ void rand_sse( unsigned int* result, unsigned int th_id)
 	cur_seed[th_id] = _mm_mul_epu32( cur_seed[th_id], multiplier );
 	multiplier = _mm_shuffle_epi32( multiplier, _MM_SHUFFLE( 2, 3, 0, 1 ) );
 	cur_seed_split = _mm_mul_epu32( cur_seed_split, multiplier );
-	
-	
+
+
 	cur_seed[th_id] = _mm_and_si128( cur_seed[th_id], mod_mask);
 	cur_seed_split = _mm_and_si128( cur_seed_split, mod_mask );
 	cur_seed_split = _mm_shuffle_epi32( cur_seed_split, _MM_SHUFFLE( 2, 3, 0, 1 ) );
