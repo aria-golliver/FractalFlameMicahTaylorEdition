@@ -4,6 +4,7 @@
 #include "datatypes.h"
 #include "systemconfig.h"
 #include <stdio.h>
+#include <stdlib.h>
 #if __RDRAND_AVAILIABLE__ != 0
 #define RDRAND_SUCCESS 1
 
@@ -34,11 +35,13 @@ __forceinline i64 rdrand_i64(i64 *p){
     return rdrand_u64((u64 *)p);
 }
 
+// floating point random functions return (-1, 1)
 __forceinline f32 rdrand_f32(f32 *p){
     i32 i = rdrand_i32((i32 *)p);
     return (f32)((f64)i / (f64)INT32_MAX);
 }
 
+// floating point random functions return (-1, 1)
 __forceinline f64 rdrand_f64(f64 *p){
     i64 i = rdrand_i64((i64 *) p);
     return ((f64)i / (f64)INT64_MAX);
@@ -76,15 +79,17 @@ __forceinline i64 rdrand_i64(i64 *p){
     return *p;
 }
 
+// floating point random functions return (-1, 1)
 __forceinline f32 rdrand_f32(f32 *p){
     double tmp = rand();
-    *p = (tmp/RAND_MAX);
+    *p = 2.0 * (tmp/RAND_MAX) - 1;
     return *p;
 }
 
+// floating point random functions return (-1, 1)
 __forceinline f64 rdrand_f64(f32 *p){
     double tmp = rand();
-    *p = (tmp/RAND_MAX);
+    *p = 2 * (tmp/RAND_MAX) - 1;
     return *p;
 }
 #endif
