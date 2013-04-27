@@ -58,8 +58,8 @@ int main(i32 argc, i8 **argv){
 
             printf("thread id: %d\n", th_id);
             _sleep(1000);
-            for(u32 j = 0; j < 15 * 1000000; j++){
-                // seed the random number generator every so often 
+            for(u32 j = 0; j < 3 * 1000000; j++){
+                // seed the random number generator every so often
                 srand_sse(rdrand_u32(), th_id);
 
                 if(j % 1000000 == 0){
@@ -86,13 +86,13 @@ int main(i32 argc, i8 **argv){
                     const __m128 affinee = { am_itt[0]->e, am_itt[1]->e, am_itt[2]->e, am_itt[3]->e };
                     const __m128 affinef = { am_itt[0]->f, am_itt[1]->f, am_itt[2]->f, am_itt[3]->f };
 
-                    const f128 colorsetr = { am_itt[0]->red,    am_itt[1]->red,     am_itt[2]->red,     am_itt[3]->red   };
-                    const f128 colorsetg = { am_itt[0]->green,  am_itt[1]->green,   am_itt[2]->green,   am_itt[3]->green };
-                    const f128 colorsetb = { am_itt[0]->blue,   am_itt[1]->blue,    am_itt[2]->blue,    am_itt[3]->blue  };
+                    const f128 colorsetr = { am_itt[0]->red,   am_itt[1]->red,   am_itt[2]->red,   am_itt[3]->red   };
+                    const f128 colorsetg = { am_itt[0]->green, am_itt[1]->green, am_itt[2]->green, am_itt[3]->green };
+                    const f128 colorsetb = { am_itt[0]->blue,  am_itt[1]->blue,  am_itt[2]->blue,  am_itt[3]->blue  };
 
-                    const __m128 twovec = {  2,  2,  2, 2  };		
-                    const __m128 onevec = {  1,  1,  1, 1  };		
-                    const __m128 pivec  = { PI, PI, PI, PI };
+                    const __m128 twovec = {  2,  2,  2,  2 };
+                    const __m128 onevec = {  1,  1,  1,  1 };
+                    const __m128 pivec =  { PI, PI, PI, PI };
 
                     const __m128 affinedx = vadd(
                                                 vadd(
@@ -114,29 +114,30 @@ int main(i32 argc, i8 **argv){
 
                     const __m128 theta = vatan2(affinedx, affinedy);
 
-                    const __m128 thetaaddr	= vadd(theta, r);		
-                    const __m128 thetasubr	= vsub(theta, r);	
-                    const __m128 sinrsq		= vsin(rsq);	
-                    const __m128 cosrsq		= vcos(rsq);			
-                    const __m128 thetamulpi	= vmul(theta, r);	
-                    const __m128 thetadivpi	= vdiv(theta, pivec);
-                    const __m128 pimulr		= vmul(pivec, r);	
-                    const __m128 invr		= vdiv(onevec, r);
+                    const __m128 thetaaddr = vadd(theta, r);
+                    const __m128 thetasubr = vsub(theta, r);
+                    const __m128 sinrsq = vsin(rsq);
+                    const __m128 cosrsq = vcos(rsq);
+                    const __m128 thetamulpi = vmul(theta, r);
+                    const __m128 thetadivpi = vdiv(theta, pivec);
+                    const __m128 pimulr = vmul(pivec, r);
+                    const __m128 invr = vdiv(onevec, r);
 
                     __m128 sumvecx = {0, 0, 0, 0};
                     __m128 sumvecy = {0, 0, 0, 0};
 
 
-                    v1;
+                    //v1;
                     //v2;
                     //v3;
-                    v4;
+                    //v4;
                     //v5;
                     //v6;
                     //v7;
                     //v8;
-                    v9;
+                    //v9;
                     //v10;
+                    v11;
 
                     pointvecx.v = sumvecx;
                     pointvecy.v = sumvecy;
