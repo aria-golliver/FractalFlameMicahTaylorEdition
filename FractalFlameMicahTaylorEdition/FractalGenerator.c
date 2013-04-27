@@ -90,10 +90,12 @@ int main(i32 argc, i8 **argv){
                     const f128 colorsetg = { am_itt[0]->green, am_itt[1]->green, am_itt[2]->green, am_itt[3]->green };
                     const f128 colorsetb = { am_itt[0]->blue,  am_itt[1]->blue,  am_itt[2]->blue,  am_itt[3]->blue  };
 
-                    const __m128 twovec = {  2,  2,  2,  2 };
-                    const __m128 onevec = {  1,  1,  1,  1 };
+                    const __m128 zerovec  = { 0, 0, 0, 0 };
+                    const __m128 onevec   = { 1, 1, 1, 1 };
+                    const __m128 twovec   = { 2, 2, 2, 2 };
+                    const __m128 threevec = { 3, 3, 3, 3 };
                     const __m128 pivec =  { PI, PI, PI, PI };
-
+                    
                     const __m128 affinedx = vadd(
                                                 vadd(
                                                     vmul(affinea, pointvecx.v),
@@ -118,13 +120,19 @@ int main(i32 argc, i8 **argv){
                     const __m128 thetasubr = vsub(theta, r);
                     const __m128 sinrsq = vsin(rsq);
                     const __m128 cosrsq = vcos(rsq);
+                    const __m128 sintheta = vsin(theta);
+                    const __m128 costheta = vcos(theta);
+                    const __m128 sinr = vsin(r);
+                    const __m128 cosr = vcos(r);
                     const __m128 thetamulpi = vmul(theta, r);
                     const __m128 thetadivpi = vdiv(theta, pivec);
                     const __m128 pimulr = vmul(pivec, r);
                     const __m128 invr = vdiv(onevec, r);
-
-                    __m128 sumvecx = {0, 0, 0, 0};
-                    __m128 sumvecy = {0, 0, 0, 0};
+                    const __m128 sqrtr = vsqrt(r);
+                    const __m128 halftheta = vdiv(theta, twovec);
+                    
+                    __m128 sumvecx = { 0, 0, 0, 0 };
+                    __m128 sumvecy = { 0, 0, 0, 0 };
 
 
                     //v1;
@@ -137,7 +145,14 @@ int main(i32 argc, i8 **argv){
                     //v8;
                     //v9;
                     //v10;
-                    v11;
+                    //v11;
+                    //v12;
+                    //v13;
+                    //v14;
+                    //v15;
+                    //v16;
+                    //v17;
+                    v18;
 
                     pointvecx.v = sumvecx;
                     pointvecy.v = sumvecy;

@@ -17,8 +17,8 @@ static histocell *h;
 
 #define hwid (swid * ss)
 #define hhei (shei * ss)
-#define xshrink 35.0
-#define yshrink 35.0
+#define xshrink 15.0
+#define yshrink 15.0
 
 #define xoffset 0.0
 #define yoffset 0.0

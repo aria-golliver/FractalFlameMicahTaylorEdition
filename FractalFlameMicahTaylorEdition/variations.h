@@ -64,7 +64,110 @@
     sumvecy = vadd(sumvecy, vsub(vsin(theta), vcos(r)));
 
 #define v11                                                                         \
-    sumvecx = vadd(sumvecx, vmul(vsin(theta), vcos(r)));                            \
-    sumvecy = vadd(sumvecy, vmul(vcos(theta), vsin(r)));
+    sumvecx = vadd(sumvecx, vmul(sintheta, cosr));                                  \
+    sumvecy = vadd(sumvecy, vmul(costheta, sinr));
+
+#define v12                                                                         \
+    const __m128 p12_0 = vpow(vsin( vadd(theta, r)), threevec);                     \
+    const __m128 p12_1 = vpow(vsin( vsub(theta, r)), threevec);                     \
+    sumvecx = vadd(sumvecx, vadd(p12_0, p12_1));                                    \
+    sumvecy = vadd(sumvecy, vsub(p12_0, p12_1));
+
+#define v13                                                                         \
+    __m128 o13_omega;                                                               \
+    f32 rand = rdrand_f32();                                                        \
+    if(rand < 0.5) {                                                                \
+        o13_omega = pivec;                                                          \
+    } else {                                                                        \
+        o13_omega = zerovec;                                                        \
+    }                                                                               \
+    sumvecx = vadd(sumvecx, vmul(sqrtr, vcos(vadd(halftheta, o13_omega))));         \
+    sumvecy = vadd(sumvecy, vmul(sqrtr, vsin(vadd(halftheta, o13_omega))));
+
+#define v14                                                                         \
+    __m128 o14_x;                                                                   \
+    __m128 o14_y;                                                                   \
+    for(int i14 = 0; i14 < 4; i14++){                                               \
+        f32 fx = affinedx.m128_f32[i14];                                            \
+        f32 fy = affinedy.m128_f32[i14];                                            \
+        if(fx >= 0 && fy >= 0){                                                     \
+            o14_x.m128_f32[i14] = fx;                                               \
+            o14_y.m128_f32[i14] = fy;                                               \
+        } else if (fx < 0 && fy >= 0){                                              \
+            o14_x.m128_f32[i14] = 2.0 * fx;                                         \
+            o14_y.m128_f32[i14] = fy;                                               \
+        } else if(fx >= 0 && fy < 0){                                               \
+            o14_x.m128_f32[i14] = fx;                                               \
+            o14_y.m128_f32[i14] = fy / 2.0;                                         \
+        } else {                                                                    \
+            o14_x.m128_f32[i14] = 2.0 * fx;                                         \
+            o14_y.m128_f32[i14] = fy / 2.0;                                         \
+        }                                                                           \
+    }                                                                               \
+    sumvecx = vadd(sumvecx, o14_x);                                                 \
+    sumvecy = vadd(sumvecy, o14_y);
+
+
+#define v15                                                                         \
+    sumvecx = vadd(sumvecx,                                                         \
+                vadd(affinedx,                                                      \
+                    vmul(                                                           \
+                        affineb,                                                    \
+                        vsin(                                                       \
+                            vdiv(affinedy, vpow(affinec, twovec))))));              \
+    sumvecy = vadd(sumvecy,                                                         \
+                vadd(affinedy,                                                      \
+                    vmul(                                                           \
+                        affinee,                                                    \
+                        vsin(                                                       \
+                            vdiv(affinedx, vpow(affinef, twovec))))));
+
+#define v16                                                                         \
+    sumvecx = vadd(sumvecx, vmul(vdiv(twovec, vadd(r, onevec)), affinedy));         \
+    sumvecy = vadd(sumvecy, vmul(vdiv(twovec, vadd(r, onevec)), affinedx));
+
+                        
+#define v17                                                                         \
+    sumvecx = vadd(sumvecx,                                                         \
+                vadd(                                                               \
+                    affinedx,                                                       \
+                    vmul(                                                           \
+                        affinec,                                                    \
+                        vsin(                                                       \
+                            vtan(                                                   \
+                                vmul(                                               \
+                                    threevec,                                       \
+                                    affinedy))))));                                 \
+    sumvecy = vadd(sumvecy,                                                         \
+                vadd(                                                               \
+                    affinedy,                                                       \
+                    vmul(                                                           \
+                        affinef,                                                    \
+                        vsin(                                                       \
+                            vtan(                                                   \
+                                vmul(                                               \
+                                    threevec,                                       \
+                                    affinedx)))))); 
+
+#define v18                                                                         \
+    sumvecx = vadd( sumvecx,                                                        \
+                vmul(                                                               \
+                    vsub(                                                           \
+                        affinedx,                                                   \
+                        onevec),                                                    \
+                    vcos(                                                           \
+                        vmul(                                                       \
+                            pivec,                                                  \
+                            affinedy))));                                           \
+    sumvecy = vadd( sumvecy,                                                        \
+                vmul(                                                               \
+                    vsub(                                                           \
+                        affinedx,                                                   \
+                        onevec),                                                    \
+                    vsin(                                                           \
+                        vmul(                                                       \
+                            pivec,                                                  \
+                            affinedy))));
+
 
 #endif
