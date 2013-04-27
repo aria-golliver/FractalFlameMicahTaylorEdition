@@ -148,12 +148,12 @@ int main(i32 argc, i8 **argv){
                     //v10;
                     //v11;
                     //v12;
-                    //v13;
+                    v13;
                     //v14;
                     //v15;
                     //v16;
-                    v17;
-                    //v18;
+                    //v17;
+                    v18;
 
                     xyvec.x.v = sumvecx;
                     xyvec.y.v = sumvecy;

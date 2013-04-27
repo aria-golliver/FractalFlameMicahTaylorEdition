@@ -75,7 +75,7 @@
 
 #define v13                                                                         \
     __m128 o13_omega;                                                               \
-    f32 rand = rdrand_f32();                                                        \
+    f32 rand = rdrand_f32(&rand);                                                   \
     if(rand < 0.5) {                                                                \
         o13_omega = pivec;                                                          \
     } else {                                                                        \
