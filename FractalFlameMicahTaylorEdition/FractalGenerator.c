@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <immintrin.h>
+#include <Windows.h>
 
 #include <omp.h>
 
@@ -27,6 +28,8 @@ static affinematrix am[n_affine_matrix];
 static affinematrix * affine_jump_table[jump_table_size];
 
 int main(i32 argc, i8 **argv){
+	SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
+
 	while(1){
 	printf("allocating memory... ");
 	histoinit();
@@ -55,7 +58,7 @@ int main(i32 argc, i8 **argv){
 
 		printf("thread id: %d\n", th_id);
 		_sleep(1000);
-		for(u32 j = 0; j < 30 * 1000000; j++){
+		for(u32 j = 0; j < 15 * 1000000; j++){
 			// seed the random number generator every so often 
 			srand_sse(rdrand_u32(), th_id);
 
@@ -152,6 +155,10 @@ int main(i32 argc, i8 **argv){
 
 	printf(" done took %f seconds\n", (f64)(end - start)/(f64)CLOCKS_PER_SEC);
 	saveimage();
+
+	char *resize_command = "mogrify -format png -path images -resize 1920x1080 fractal.bmp";
+	system(resize_command);
+	
 	}
 	//getchar();
 }

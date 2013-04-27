@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include "vmath.h"
 
 #include <immintrin.h>
@@ -33,12 +34,24 @@ const __m128 hwidShrunk = { hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshri
 const __m128 hheiShrunk = { hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink };
 
 void histoinit(){
-	if(!h)
-		free(h);
-	h = (histocell *) calloc(hwid * hhei, sizeof(histocell));
+	int numcells = hwid * hhei;
+	size_t histogramSize = numcells * sizeof(histocell);
+
+	if(h == NULL)
+		h = (histocell *) calloc(numcells, sizeof(histocell));
+	else
+		memset(h, 0, histogramSize);
+
+	if(!h){
+		printf("Could not allocate %u bytes\nPress enter to exit.", hwid * hhei * sizeof(histocell));
+		getchar();
+		exit(1);
+	}
+
 }
 
 u64 goodHits = 0;
+u64 missHits = 0;
 u64 badHits = 0;
 
 u64 threadHits[12];
@@ -97,6 +110,7 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
 					goodHits++;
 				}
 			} else {
+				missHits++;
 				rand_sse((u32 *) xarr.f, th_id);
 				rand_sse((u32 *) yarr.f, th_id);
 				threadHits[th_id] = 0;
@@ -113,7 +127,7 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
 }
 
 void saveimage(){
-	printf("Good hits: %u\t Bad hits: %u\t %f\n", goodHits, badHits, (f32)goodHits/(badHits > 0 ? badHits : 1));
+	printf("Good hits: %u\t Miss hits: %u\t Bad hits: %u\t %f\n", goodHits, missHits, badHits, (f32)goodHits/(badHits > 0 ? badHits : 1));
 
 	bmpfile_t *bmp;
 
