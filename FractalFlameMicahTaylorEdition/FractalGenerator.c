@@ -37,7 +37,6 @@ int main(i32 argc, i8 **argv){
 		affineinit();
 		printf("done\n");
 
-
 		printf("plotting points\n");
 		clock_t start;
 		start = clock();
