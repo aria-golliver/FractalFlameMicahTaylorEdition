@@ -18,39 +18,39 @@ typedef float f32 ;
 typedef double f64 ;
 
 typedef union {
-	u32 data;
-	struct {
-		u8 r;
-		u8 g;
-		u8 b;
-		u8 a;
-	};
+    u32 data;
+    struct {
+        u8 r;
+        u8 g;
+        u8 b;
+        u8 a;
+    };
 } rgba8;
 
 typedef struct {
-	f32 r, g, b;
-	u64 a;
+    f32 r, g, b;
+    u64 a;
 } histocell;
 
 typedef struct {
-	f32 r, g, b;
+    f32 r, g, b;
 } colorset;
 
 typedef struct {
-	f32 x, y;
+    f32 x, y;
 } point;
 
 
 union f128_t{
-	_declspec(align(16)) f32 f[4];
-	__m128 v;
+    _declspec(align(16)) f32 f[4];
+    __m128 v;
 };
 
 typedef union f128_t f128;
 
 typedef struct {
-	f128 x;
-	f128 y;
+    f128 x;
+    f128 y;
 } f128tuple;
 
 #endif
