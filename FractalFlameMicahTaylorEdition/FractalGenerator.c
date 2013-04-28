@@ -58,16 +58,16 @@ int main(i32 argc, i8 **argv){
             rand_sse((unsigned int *)pointvecy.f, th_id);
 
             printf("thread id: %d\n", th_id);
-            _sleep(1000);
-            for(u32 j = 0; j < 3 * 10000000; j++){
+            Sleep(1000);
+            for(u32 j = 0; j < 2 * 100000; j++){
                 // seed the random number generator every so often
                 srand_sse(rdrand_u32(&tmp), th_id);
 
-                if(j % 10000000 == 0){
-                    printf("...%u", j/10000000);
+                if(j % 100000 == 0){
+                    printf("...%u", j/100000);
                 }
 
-                for(u64 i = 0; i < 1; i++){
+                for(u64 i = 0; i < 100; i++){
                     affinematrix *am_itt[4];
                     u32 jumpTable[4];
 
@@ -91,11 +91,12 @@ int main(i32 argc, i8 **argv){
                     const f128 colorsetg = { am_itt[0]->green, am_itt[1]->green, am_itt[2]->green, am_itt[3]->green };
                     const f128 colorsetb = { am_itt[0]->blue,  am_itt[1]->blue,  am_itt[2]->blue,  am_itt[3]->blue  };
 
-                    const __m128 zerovec  = { 0, 0, 0, 0 };
-                    const __m128 onevec   = { 1, 1, 1, 1 };
-                    const __m128 twovec   = { 2, 2, 2, 2 };
-                    const __m128 threevec = { 3, 3, 3, 3 };
-                    const __m128 pivec =  { PI, PI, PI, PI };
+                    const __m128 zerovec   = { 0, 0, 0, 0 };
+                    const __m128 onevec    = { 1, 1, 1, 1 };
+                    const __m128 twovec    = { 2, 2, 2, 2 };
+                    const __m128 threevec  = { 3, 3, 3, 3 };
+                    const __m128 pivec     = { PI, PI, PI, PI };
+                    const __m128 negonevec = { -1, -1, -1, -1 };
                     
                     const __m128 affinedx = vadd(
                                                 vadd(
@@ -153,7 +154,9 @@ int main(i32 argc, i8 **argv){
                     //v15;
                     //v16;
                     //v17;
-                    v18;
+                    //v18;
+                    //v19;
+                    //v20;
 
                     xyvec.x.v = sumvecx;
                     xyvec.y.v = sumvecy;

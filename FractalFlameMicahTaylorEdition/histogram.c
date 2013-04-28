@@ -17,6 +17,7 @@
 #include "histogram.h"
 
 
+histocell *h;
 
 
 __m128 xshrinkvec = { xshrink, xshrink, xshrink, xshrink };
@@ -43,7 +44,7 @@ void histoinit(){
         memset(h, 0, histogramSize);
 
     if(!h){
-        printf("Could not allocate %u bytes\nPress enter to exit.", hwid * hhei * sizeof(histocell));
+        printf("Could not allocate %zu bytes\nPress enter to exit.", hwid * hhei * sizeof(histocell));
         getchar();
         exit(1);
     }
@@ -127,7 +128,7 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
 }
 
 void saveimage(){
-    printf("Good hits: %u\t Miss hits: %u\t Bad hits: %u\t %f\n", goodHits, missHits, badHits, (f32)goodHits/(badHits > 0 ? badHits : 1));
+    printf("Good hits: %llu\t Miss hits: %llu\t Bad hits: %llu\t %f\n", goodHits, missHits, badHits, (f32)goodHits/(badHits > 0 ? badHits : 1));
 
     bmpfile_t *bmp;
 

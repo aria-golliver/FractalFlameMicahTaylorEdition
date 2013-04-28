@@ -169,5 +169,36 @@
                             pivec,                                                  \
                             affinedy))));
 
+#define v19                                                                         \
+    sumvecx = vadd(sumvecx,                                                         \
+                vmul(                                                               \
+                    vpow(                                                           \
+                        r,                                                          \
+                        vsin(theta)),                                               \
+                    vcos(theta)));                                                  \
+    sumvecy = vadd(sumvecy,                                                         \
+            vmul(                                                                   \
+                vpow(                                                               \
+                    r,                                                              \
+                    vsin(theta)),                                                   \
+                vsin(theta)));
 
+// bugged
+#define v20                                                                         \
+    sumvecx = vadd(sumvecx,                                                         \
+                vmul(                                                               \
+                    vcos(                                                           \
+                        vmul(                                                       \
+                            pivec,                                                  \
+                            affinedx)),                                             \
+                    vcosh(affinedy)));                                              \
+                                                                                    \
+    sumvecy = vadd(sumvecy,                                                         \
+                vmul( negonevec,                                                    \
+                    vmul(                                                           \
+                        vsin(                                                       \
+                            vmul(                                                   \
+                                pivec,                                              \
+                                affinedx)),                                         \
+                        vsinh(affinedy))));
 #endif

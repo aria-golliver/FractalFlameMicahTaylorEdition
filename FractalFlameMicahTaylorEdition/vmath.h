@@ -34,6 +34,8 @@ static __forceinline __m128 vpow(const __m128 a, const __m128 b) { return _mm_po
 
 static __forceinline __m128 vsin(const __m128 a) { return _mm_sin_ps(a); }
 static __forceinline __m128 vcos(const __m128 a) { return _mm_cos_ps(a); }
+static __forceinline __m128 vsinh(const __m128 a) { return _mm_sinh_ps(a); }
+static __forceinline __m128 vcosh(const __m128 a) { return _mm_cosh_ps(a); }
 static __forceinline __m128 vtan(const __m128 a) { return _mm_tan_ps(a); }
 static __forceinline __m128 vatan2(const __m128 a, const __m128 b) { return _mm_atan2_ps(a, b); }
 

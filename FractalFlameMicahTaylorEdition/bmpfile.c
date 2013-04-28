@@ -675,7 +675,7 @@ bool
         if (bytes_per_line % 4 != 0)
             bytes_per_line += 4 - bytes_per_line % 4;
 
-        buf = malloc(bytes_per_line);
+        buf = (unsigned char *)malloc(bytes_per_line);
 
         for (row = bmp->dib.height - 1; row >= 0; --row) {
             memset(buf, 0, bytes_per_line);

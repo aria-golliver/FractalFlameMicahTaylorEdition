@@ -49,6 +49,10 @@
     <PlatformToolset>Intel C++ Compiler XE 13.0</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <UseIntelIPP>true</UseIntelIPP>
+    <UseIntelTBB>true</UseIntelTBB>
+    <UseIntelMKL>Parallel</UseIntelMKL>
+    <UseILP64Interfaces>true</UseILP64Interfaces>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -152,6 +156,11 @@
       <OpenMP>GenerateParallelCode</OpenMP>
       <OptimizationDiagnosticLevel>Maximum</OptimizationDiagnosticLevel>
       <EmitOptimizationDiagnosticsToFile>true</EmitOptimizationDiagnosticsToFile>
+      <UseIntelOptimizedHeaders>true</UseIntelOptimizedHeaders>
+      <UnmaskFloatingPointExceptions>NoTraps</UnmaskFloatingPointExceptions>
+      <FloatingPointExpressionEvaluation>Source</FloatingPointExpressionEvaluation>
+      <FlushDenormalResultsToZero>true</FlushDenormalResultsToZero>
+      <FloatingPointModel>Fast2</FloatingPointModel>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
