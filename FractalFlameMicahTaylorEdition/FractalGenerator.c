@@ -14,6 +14,7 @@
 
 #define n_affine_matrix 6
 #define jump_table_size (1024)
+#define MAX_VARIATIONS 50
 
 #define abs(x) (x >= 0 ? x : - x)
 
@@ -23,9 +24,11 @@ typedef struct {
 } affinematrix;
 
 void affineinit();
+void variationinit();
 
 static affinematrix am[n_affine_matrix];
 static affinematrix * affine_jump_table[jump_table_size];
+static f128 variation_weights[MAX_VARIATIONS];
 
 int main(i32 argc, i8 **argv){
     SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
@@ -35,6 +38,7 @@ int main(i32 argc, i8 **argv){
         printf("allocating memory... ");
         histoinit();
         affineinit();
+        variationinit();
         printf("done\n");
 
         printf("plotting points\n");
@@ -146,16 +150,16 @@ int main(i32 argc, i8 **argv){
                     //v7;
                     //v8;
                     //v9;
-                    //v10;
-                    //v11;
+                    v10;
+                    v11;
                     //v12;
-                    v13;
+                    //v13;
                     //v14;
                     //v15;
                     //v16;
                     //v17;
                     //v18;
-                    //v19;
+                    v19;
                     //v20;
 
                     xyvec.x.v = sumvecx;
@@ -203,4 +207,26 @@ void affineinit(){
         u32 tmp;
         affine_jump_table[i] = &(am[rdrand_u32(&tmp) % n_affine_matrix]);
     }
+}
+
+void variationinit(){
+    float total = 0;
+    for(int i = 0; i < MAX_VARIATIONS; i++){
+        float weight = abs(rdrand_f32(&weight));
+        variation_weights[i].f[0] = weight;
+        variation_weights[i].f[1] = weight;
+        variation_weights[i].f[2] = weight;
+        variation_weights[i].f[3] = weight;
+        total += weight;
+    }
+
+    // this part needs work
+    /*
+    for(int i = 0; i < MAX_VARIATIONS; i++){
+        variation_weights[i].f[0] /= total;
+        variation_weights[i].f[1] /= total;
+        variation_weights[i].f[2] /= total;
+        variation_weights[i].f[3] /= total;
+    }
+    */
 }
