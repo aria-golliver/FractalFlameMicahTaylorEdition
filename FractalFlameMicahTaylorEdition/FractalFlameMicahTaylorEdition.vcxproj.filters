@@ -44,8 +44,5 @@
     <ClCompile Include="FractalGenerator.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="fastrandsse.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

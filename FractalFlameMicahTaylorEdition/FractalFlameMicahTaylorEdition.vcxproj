@@ -179,7 +179,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bmpfile.c" />
-    <ClCompile Include="fastrandsse.c" />
     <ClCompile Include="FractalGenerator.c" />
     <ClCompile Include="histogram.c" />
   </ItemGroup>
