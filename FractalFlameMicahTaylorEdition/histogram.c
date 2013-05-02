@@ -61,6 +61,8 @@ typedef union {
     u32 u;
 } f32u32;
 
+f128 zerovec = { 0, 0, 0, 0 };
+
 f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128 bvec, const i32 th_id){
     if(threadHits[th_id]++ > 20){
         f128 xarr = xyvec.x;
@@ -111,16 +113,8 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
                 }
             } else {
                 missHits++;
-                //rand_sse((u32 *) xarr.f, th_id);
-                //rand_sse((u32 *) yarr.f, th_id);
-                xarr.f[0] = 0;
-                xarr.f[1] = 0;
-                xarr.f[2] = 0;
-                xarr.f[3] = 0;
-                yarr.f[0] = 0;
-                yarr.f[1] = 0;
-                yarr.f[2] = 0;
-                yarr.f[3] = 0;
+                xarr = zerovec;
+                yarr = zerovec;
                 threadHits[th_id] = 0;
                 wasNaN = 1;
             }

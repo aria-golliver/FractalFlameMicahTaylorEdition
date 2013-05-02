@@ -11,9 +11,9 @@
 
 #include <omp.h>
 
-#define n_affine_matrix 6
+#define n_affine_matrix (6)
 #define jump_table_size (1024)
-#define MAX_VARIATIONS 50
+#define MAX_VARIATIONS (50)
 
 #define abs(x) (x >= 0 ? x : - x)
 
@@ -53,19 +53,17 @@ int main(i32 argc, i8 **argv){
 
             f128 pointvecx = {0,0,0,0};
             f128 pointvecy = {0,0,0,0};
+            f128 pointvecr = {0,0,0,0};
+            f128 pointvecg = {0,0,0,0};
+            f128 pointvecb = {0,0,0,0};
+
             f128tuple xyvec;
 
             u32 tmp;
-            //srand_sse(rdrand_u32(&tmp), th_id);
-
-            //rand_sse((unsigned int *)pointvecx.f, th_id);
-            //rand_sse((unsigned int *)pointvecy.f, th_id);
 
             printf("thread id: %d\n", th_id);
             Sleep(1000);
-            for(u32 j = 0; j < 600 * 1000000; j++){
-                // seed the random number generator every so often
-                //srand_sse(rdrand_u32(&tmp), th_id);
+            for(u32 j = 0; j < 6 * 1000000; j++){
 
                 if(j % 1000000 == 0){
                     printf("...%u", j/1000000);
@@ -75,7 +73,6 @@ int main(i32 argc, i8 **argv){
                     affinematrix *am_itt[4];
                     u32 jumpTable[4];
 
-                    //rand_sse(jumpTable, th_id);
                     jumpTable[0] = rdrand_u32(&jumpTable[0]);
                     jumpTable[1] = rdrand_u32(&jumpTable[1]);
                     jumpTable[2] = rdrand_u32(&jumpTable[2]);
@@ -95,9 +92,11 @@ int main(i32 argc, i8 **argv){
                     const __m128 affinee = { am_itt[0]->e, am_itt[1]->e, am_itt[2]->e, am_itt[3]->e };
                     const __m128 affinef = { am_itt[0]->f, am_itt[1]->f, am_itt[2]->f, am_itt[3]->f };
 
-                    const f128 colorsetr = { am_itt[0]->red,   am_itt[1]->red,   am_itt[2]->red,   am_itt[3]->red   };
-                    const f128 colorsetg = { am_itt[0]->green, am_itt[1]->green, am_itt[2]->green, am_itt[3]->green };
-                    const f128 colorsetb = { am_itt[0]->blue,  am_itt[1]->blue,  am_itt[2]->blue,  am_itt[3]->blue  };
+                    const __m128 colorsetr = { am_itt[0]->red,   am_itt[1]->red,   am_itt[2]->red,   am_itt[3]->red   };
+                    const __m128 colorsetg = { am_itt[0]->green, am_itt[1]->green, am_itt[2]->green, am_itt[3]->green };
+                    const __m128 colorsetb = { am_itt[0]->blue,  am_itt[1]->blue,  am_itt[2]->blue,  am_itt[3]->blue  };
+                    
+
 
                     const __m128 zerovec   = { 0, 0, 0, 0 };
                     const __m128 onevec    = { 1, 1, 1, 1 };
@@ -105,6 +104,11 @@ int main(i32 argc, i8 **argv){
                     const __m128 threevec  = { 3, 3, 3, 3 };
                     const __m128 pivec     = { PI, PI, PI, PI };
                     const __m128 negonevec = { -1, -1, -1, -1 };
+
+                    // update colors: colorfinal = (colorold + colornew) / 2.0
+                    pointvecr.v = vdiv(vadd(pointvecr.v, colorsetr), twovec);
+                    pointvecg.v = vdiv(vadd(pointvecg.v, colorsetg), twovec);
+                    pointvecb.v = vdiv(vadd(pointvecb.v, colorsetb), twovec);
                     
                     const __m128 affinedx = vadd(
                                                 vadd(
@@ -169,7 +173,7 @@ int main(i32 argc, i8 **argv){
                     xyvec.x.v = sumvecx;
                     xyvec.y.v = sumvecy;
 
-                    xyvec = histohit(xyvec, colorsetr, colorsetg, colorsetb, th_id);
+                    xyvec = histohit(xyvec, pointvecr, pointvecg, pointvecb, th_id);
                     pointvecx = xyvec.x;
                     pointvecy = xyvec.y;
                 }
