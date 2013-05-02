@@ -30,12 +30,6 @@
     <ClInclude Include="bmpfile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="systemconfig.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="fastrandsse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="vmath.h">
       <Filter>Header Files</Filter>
     </ClInclude>

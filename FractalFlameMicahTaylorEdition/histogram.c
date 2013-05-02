@@ -12,7 +12,6 @@
 
 #include "datatypes.h"
 #include "rdrand.h"
-#include "fastrandsse.h"
 #include "bmpfile.h"
 #include "histogram.h"
 
@@ -112,8 +111,16 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
                 }
             } else {
                 missHits++;
-                rand_sse((u32 *) xarr.f, th_id);
-                rand_sse((u32 *) yarr.f, th_id);
+                //rand_sse((u32 *) xarr.f, th_id);
+                //rand_sse((u32 *) yarr.f, th_id);
+                xarr.f[0] = 0;
+                xarr.f[1] = 0;
+                xarr.f[2] = 0;
+                xarr.f[3] = 0;
+                yarr.f[0] = 0;
+                yarr.f[1] = 0;
+                yarr.f[2] = 0;
+                yarr.f[3] = 0;
                 threadHits[th_id] = 0;
                 wasNaN = 1;
             }

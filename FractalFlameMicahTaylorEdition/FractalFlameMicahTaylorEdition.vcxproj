@@ -172,10 +172,8 @@
   <ItemGroup>
     <ClInclude Include="bmpfile.h" />
     <ClInclude Include="datatypes.h" />
-    <ClInclude Include="fastrandsse.h" />
     <ClInclude Include="histogram.h" />
     <ClInclude Include="rdrand.h" />
-    <ClInclude Include="systemconfig.h" />
     <ClInclude Include="variations.h" />
     <ClInclude Include="vmath.h" />
   </ItemGroup>

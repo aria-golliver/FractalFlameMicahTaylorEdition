@@ -1,7 +1,6 @@
 #include "datatypes.h"
 #include "histogram.h"
 #include "rdrand.h"
-#include "fastrandsse.h"
 #include "variations.h"
 #include "vmath.h"
 
@@ -25,6 +24,7 @@ typedef struct {
 
 void affineinit();
 void variationinit();
+void compressimage();
 
 static affinematrix am[n_affine_matrix];
 static affinematrix * affine_jump_table[jump_table_size];
@@ -51,31 +51,35 @@ int main(i32 argc, i8 **argv){
         {
             th_id = omp_get_thread_num();
 
-            f128 pointvecx;
-            f128 pointvecy;
+            f128 pointvecx = {0,0,0,0};
+            f128 pointvecy = {0,0,0,0};
             f128tuple xyvec;
 
             u32 tmp;
-            srand_sse(rdrand_u32(&tmp), th_id);
+            //srand_sse(rdrand_u32(&tmp), th_id);
 
-            rand_sse((unsigned int *)pointvecx.f, th_id);
-            rand_sse((unsigned int *)pointvecy.f, th_id);
+            //rand_sse((unsigned int *)pointvecx.f, th_id);
+            //rand_sse((unsigned int *)pointvecy.f, th_id);
 
             printf("thread id: %d\n", th_id);
             Sleep(1000);
-            for(u32 j = 0; j < 2 * 100000; j++){
+            for(u32 j = 0; j < 600 * 1000000; j++){
                 // seed the random number generator every so often
-                srand_sse(rdrand_u32(&tmp), th_id);
+                //srand_sse(rdrand_u32(&tmp), th_id);
 
-                if(j % 100000 == 0){
-                    printf("...%u", j/100000);
+                if(j % 1000000 == 0){
+                    printf("...%u", j/1000000);
                 }
 
-                for(u64 i = 0; i < 100; i++){
+                for(u64 i = 0; i < 10; i++){
                     affinematrix *am_itt[4];
                     u32 jumpTable[4];
 
-                    rand_sse(jumpTable, th_id);
+                    //rand_sse(jumpTable, th_id);
+                    jumpTable[0] = rdrand_u32(&jumpTable[0]);
+                    jumpTable[1] = rdrand_u32(&jumpTable[1]);
+                    jumpTable[2] = rdrand_u32(&jumpTable[2]);
+                    jumpTable[3] = rdrand_u32(&jumpTable[3]);
 
                     for(u32 j = 0; j < 4; j++){
                         i32 n = jumpTable[j] % jump_table_size;
@@ -141,17 +145,17 @@ int main(i32 argc, i8 **argv){
                     __m128 sumvecy = { 0, 0, 0, 0 };
 
 
-                    //v1;
-                    //v2;
-                    //v3;
+                    v1;
+                    v2;
+                    v3;
                     //v4;
                     //v5;
                     //v6;
-                    //v7;
+                    v7;
                     //v8;
                     //v9;
-                    v10;
-                    v11;
+                    //v10;
+                    //v11;
                     //v12;
                     //v13;
                     //v14;
@@ -159,7 +163,7 @@ int main(i32 argc, i8 **argv){
                     //v16;
                     //v17;
                     //v18;
-                    v19;
+                    //v19;
                     //v20;
 
                     xyvec.x.v = sumvecx;
@@ -177,11 +181,30 @@ int main(i32 argc, i8 **argv){
         printf(" done took %f seconds\n", (f64)(end - start)/(f64)CLOCKS_PER_SEC);
         saveimage();
 
-        char *resize_command = "mogrify -format png -path images -resize 1920x1080 fractal.bmp";
-        system(resize_command);
+        // create random filename for each image
+        compressimage();
 
     }
     //getchar();
+}
+
+void compressimage(){
+        char *rand_filename = (char *) calloc(1024, sizeof(char));
+
+        char *base_command = "mogrify -format png -path images -resize 1920x1080 -write images/";
+        char *extension = ".png ";
+        u64 tmp;
+        char *rand_int_string = (char *) calloc(1024, sizeof(char));
+        sprintf(rand_int_string, "%llu", rdrand_u64(&tmp));
+        strcat(rand_filename, base_command);
+        strcat(rand_filename, rand_int_string);
+        strcat(rand_filename, extension);
+        strcat(rand_filename, " fractal.bmp");
+
+        printf("compressing with command: %s\n", rand_filename);
+        system(rand_filename);
+        free(rand_int_string);
+        free(rand_filename);
 }
 
 void affineinit(){
