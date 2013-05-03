@@ -170,6 +170,4 @@ void saveimage(){
     bmp_save(bmp, "fractal.bmp");
     bmp_destroy(bmp);
     printf("done\n");
-    printf("\n");
-    printf("press enter to quit\n");
 }
