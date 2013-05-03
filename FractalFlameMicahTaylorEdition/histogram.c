@@ -25,13 +25,13 @@ __m128 yshrinkvec = { yshrink, yshrink, yshrink, yshrink };
 const __m128 xoffsetvec = { xoffset, xoffset, xoffset, xoffset };
 const __m128 yoffsetvec = { yoffset, yoffset, yoffset, yoffset };
 
-const __m128 halfhwid = { hwid/2.0, hwid/2.0, hwid/2.0, hwid/2.0 };
-const __m128 halfhhei = { hhei/2.0, hhei/2.0, hhei/2.0, hhei/2.0 };
-const __m128 hwidvec = { hwid, hwid, hwid, hwid };
-const __m128 hheivec = { hhei, hhei, hhei, hhei };
+const __m128 halfhwidvec = { hwid/2.0, hwid/2.0, hwid/2.0, hwid/2.0 };
+const __m128 halfhheivec = { hhei/2.0, hhei/2.0, hhei/2.0, hhei/2.0 };
+const __m128 hwidvecvec = { hwid, hwid, hwid, hwid };
+const __m128 hheivecvec = { hhei, hhei, hhei, hhei };
 
-const __m128 hwidShrunk = { hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink };
-const __m128 hheiShrunk = { hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink };
+const __m128 hwidShrunkvec = { hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink };
+const __m128 hheiShrunkvec = { hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink };
 
 void histoinit(){
     int numcells = hwid * hhei;
@@ -71,35 +71,41 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
         const f128 garr = gvec;
         const f128 barr = bvec;
 
-        i32 wasNaN = 0;
+        if(vvalid(xarr.v) && vvalid(yarr.v)){
 
-        for (i32 i = 0; i < 4; i++){
-            f32u32 x;
-            x.f = xarr.f[i];
-            f32u32 y;
-            y.f = yarr.f[i];
+            f128 scaledX;
+            scaledX.v = vadd(
+                           vmul(
+                               vadd(xarr.v, xoffsetvec),
+                               hwidShrunkvec),
+                           halfhwidvec);
+            f128 scaledY;
+            scaledY.v = vadd(
+                            vmul(
+                                vadd(yarr.v, yoffsetvec),
+                                hheiShrunkvec),
+                            halfhheivec);
 
-            f32 r = rarr.f[i];
-            f32 g = garr.f[i];
-            f32 b = barr.f[i];
-            const u32 NaN = 0x7f800000;
-            if(((x.u & NaN) != NaN)  & ((y.u & NaN) != NaN) ){
-                u64 ix = (xarr.f[i] + xoffset) * (hwid / xshrink) + (hwid / 2);
-                u64 iy = (yarr.f[i] + yoffset) * (hhei / yshrink) + (hhei / 2);
+            for (i32 i = 0; i < 4; i++){
+                u64 ix = scaledX.f[i];
+                u64 iy = scaledY.f[i];
+
+                f32 r = rarr.f[i];
+                f32 g = garr.f[i];
+                f32 b = barr.f[i];
+
                 u64 cell = ix + (iy * hwid);
                 if(ix < hwid && iy < hhei){
                     f32 cellr, cellg, cellb;
-                    u64 cella;
 
                     cellr = h[cell].r;
                     cellg = h[cell].g;
                     cellb = h[cell].b;
-                    cella = h[cell].a;
+                    ++h[cell].a;
 
                     cellr += r;
                     cellg += g;
                     cellb += b;
-                    ++cella;
 
                     cellr /= 2;
                     cellg /= 2;
@@ -108,19 +114,16 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
                     h[cell].r = cellr;
                     h[cell].g = cellb;
                     h[cell].b = cellg;
-                    h[cell].a = cella;
                     ++goodHits;
+                } else {
+                    ++missHits;
                 }
-            } else {
-                ++missHits;
-                xarr = zerovec;
-                yarr = zerovec;
-                threadHits[th_id] = 0;
-                wasNaN = 1;
             }
-        }
-        if(wasNaN){
-            badHits++;
+        } else {
+            ++badHits;
+            threadHits[th_id] = 0;
+            xarr = zerovec;
+            yarr = zerovec;
             xyvec.x = xarr;
             xyvec.y = yarr;
         }

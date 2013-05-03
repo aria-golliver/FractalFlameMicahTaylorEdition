@@ -163,7 +163,7 @@
       <FloatingPointModel>Fast2</FloatingPointModel>
       <LevelOfStaticAnalysis>None</LevelOfStaticAnalysis>
       <ModeOfStaticAnalysis>None</ModeOfStaticAnalysis>
-      <EmitDiagnosticsToFile>true</EmitDiagnosticsToFile>
+      <EmitDiagnosticsToFile>false</EmitDiagnosticsToFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

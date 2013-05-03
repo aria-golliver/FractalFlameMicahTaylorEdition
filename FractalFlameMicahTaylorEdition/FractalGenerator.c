@@ -15,7 +15,7 @@
 #define jump_table_size (1024)
 #define MAX_VARIATIONS (50)
 
-#define FLAME_ITTS (10)
+#define FLAME_ITTS (2)
 
 #define abs(x) (x >= 0 ? x : - x)
 
@@ -35,7 +35,6 @@ static f128 variation_weights[MAX_VARIATIONS];
 
 int main(i32 argc, i8 **argv){
     SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
-    srand(time(NULL));
 
     while(1){
         printf("allocating memory... ");
@@ -152,9 +151,9 @@ int main(i32 argc, i8 **argv){
                     __m128 sumvecy = { 0, 0, 0, 0 };
 
 
-                    v1;
+                    //v1;
                     //v2;
-                    v3;
+                    //v3;
                     //v4;
                     //v5;
                     //v6;
@@ -165,15 +164,15 @@ int main(i32 argc, i8 **argv){
                     //v11;
                     //v12;
                     //v13;
-                    //v14;
+                    v14;
                     //v15;
                     //v16;
-                    //v17;
+                    v17;
                     //v18;
                     //v19;
                     //v20;
                     v21;
-                    //v22;
+                    v22;
                     
                     xyvec.x.v = sumvecx;
                     xyvec.y.v = sumvecy;
