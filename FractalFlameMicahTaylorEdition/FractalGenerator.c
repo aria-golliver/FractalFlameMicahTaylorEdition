@@ -15,7 +15,7 @@
 #define jump_table_size (1024)
 #define MAX_VARIATIONS (50)
 
-#define FLAME_ITTS (2)
+#define FLAME_ITTS (1)
 
 #define abs(x) (x >= 0 ? x : - x)
 
@@ -39,17 +39,19 @@ int main(i32 argc, i8 **argv){
     SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
 
     while(1){
-        printf("allocating memory... ");
-        histoinit();
-        affineinit();
-        variationinit();
-
         u64 tmp;
         if(fractal_name){
             free(fractal_name);
         }
         fractal_name = (char *) calloc(1024, sizeof(char));
         sprintf(fractal_name, "%llu", rdrand_u64(&tmp));
+
+        printf("Creating fractal named: %s\n", fractal_name);
+        printf("allocating memory... ");
+        histoinit();
+        affineinit();
+        variationinit();
+
 
         printf("done\n");
 
@@ -228,12 +230,12 @@ void compressimage(){
 void affineinit(){
     // init matrix values
     for(u32 i = 0; i < n_affine_matrix; i++){
-        am[i].a = rdrand_f32(&am[i].a);
-        am[i].b = rdrand_f32(&am[i].b);
-        am[i].c = rdrand_f32(&am[i].c);
-        am[i].d = rdrand_f32(&am[i].d);
-        am[i].e = rdrand_f32(&am[i].e);
-        am[i].f = rdrand_f32(&am[i].f);
+        am[i].a = rdrand_f32(&(am[i].a));
+        am[i].b = rdrand_f32(&(am[i].b));
+        am[i].c = rdrand_f32(&(am[i].c));
+        am[i].d = rdrand_f32(&(am[i].d));
+        am[i].e = rdrand_f32(&(am[i].e));
+        am[i].f = rdrand_f32(&(am[i].f));
 
         f32 r = rdrand_f32(&r);
         f32 g = rdrand_f32(&g);
@@ -283,15 +285,16 @@ void savegenome(){
         fprintf(file, "\tam[%d].red = %.20ff;\n", i, am[i].red);
         fprintf(file, "\tam[%d].blue = %.20ff;\n", i, am[i].blue);
         fprintf(file, "\tam[%d].green = %.20ff;\n", i, am[i].green);
+
     }
 
     for(u32 i = 0; i < jump_table_size; i++){
-        fprintf(file, "\taffine_jump_table[%d] = &(am[%d]);\n", i, (affine_jump_table[i]) - am);
+        fprintf(file, "\taffine_jump_table[%d] = &(am[%d]);\n", i, affine_jump_table[i] - am);
     }
     fprintf(file, "}\n");
 
     fprintf(file, "void affineinit(){\n");
-    for(u32 i = 0; i < n_affine_matrix; i++){
+    for(u32 i = 0; i < MAX_VARIATIONS; i++){
         fprintf(file, "\tvariation_weights[%d].f[0] = %.20ff;\n", i, variation_weights[i].f[0]);
         fprintf(file, "\tvariation_weights[%d].f[1] = %.20ff;\n", i, variation_weights[i].f[1]);
         fprintf(file, "\tvariation_weights[%d].f[2] = %.20ff;\n", i, variation_weights[i].f[2]);
