@@ -85,8 +85,8 @@
     sumvecy = vadd(sumvecy, vmul(vmul(sqrtr, vsin(vadd(halftheta, o13_omega))), variation_weights[13].v));
 
 #define v14                                                                                                         \
-    __m128 o14_x;                                                                                                   \
-    __m128 o14_y;                                                                                                   \
+    __m128 o14_x = { 0, 0, 0, 0 };                                                                                  \
+    __m128 o14_y = { 0, 0, 0, 0 };                                                                                  \
     for(int i14 = 0; i14 < 4; i14++){                                                                               \
         f32 fx = affinedx.m128_f32[i14];                                                                            \
         f32 fy = affinedy.m128_f32[i14];                                                                            \
@@ -211,4 +211,46 @@
                                 pivec,                                                                              \
                                 affinedx)),                                                                         \
                         vsinh(affinedy))), variation_weights[20].v));
+
+#define v21                                                                                                         \
+    const __m128 csquared = vmul(affinec, affinec);                                                                 \
+    const __m128 rpluscsquared = vadd(r, csquared);                                                                 \
+    const __m128 multiplier =                                                                                       \
+                    vadd(                                                                                           \
+                        vsub(                                                                                       \
+                            vmod(rpluscsquared, vmul(twovec, csquared)),                                            \
+                            csquared),                                                                              \
+                        vmul(                                                                                       \
+                            r,                                                                                      \
+                            vsub(onevec, csquared)));                                                               \
+    sumvecx = vadd(sumvecx, vmul(vmul(multiplier, vcos(theta)), variation_weights[21].v));                          \
+    sumvecy = vadd(sumvecy, vmul(vmul(multiplier, vsin(theta)), variation_weights[21].v));
+
+#define v22                                                                                                         \
+    f128 t22;                                                                                                       \
+    t22.v = vmul(pivec, vmul(affinee, affinee));                                                                    \
+    const __m128 halft22 = vdiv(t22.v, twovec);                                                                     \
+    f128 switchvec;                                                                                                 \
+    switchvec.v = vmod(vadd(theta, affinef), t22.v);                                                                \
+    f128 tvec;                                                                                                      \
+    for(int temp22 = 0; temp22 < 4; temp22++){                                                                      \
+        if(switchvec.f[temp22] > halft22.f[temp22]){                                                                \
+            tvec.f[temp22] = theta.f[temp22] - halft22.f[temp22];                                                   \
+        } else {                                                                                                    \
+            tvec.f[temp22] = theta.f[temp22] + halft22.f[temp22];                                                   \
+        }                                                                                                           \
+    }                                                                                                               \
+    sumvecx = vadd(sumvecx,                                                                                         \
+                vmul(                                                                                               \
+                    vmul(                                                                                           \
+                        r,                                                                                          \
+                        vcos(tvec.v)),                                                                              \
+                    variation_weights[22].v));                                                                      \
+    sumvecy = vadd(sumvecy,                                                                                         \
+            vmul(                                                                                                   \
+                vmul(                                                                                               \
+                    r,                                                                                              \
+                    vsin(tvec.v)),                                                                                  \
+                variation_weights[22].v));
+    
 #endif

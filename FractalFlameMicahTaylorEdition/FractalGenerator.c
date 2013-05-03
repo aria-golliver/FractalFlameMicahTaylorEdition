@@ -15,7 +15,10 @@
 #define jump_table_size (1024)
 #define MAX_VARIATIONS (50)
 
+#define FLAME_ITTS (10)
+
 #define abs(x) (x >= 0 ? x : - x)
+
 
 typedef struct {
     f32 a, b, c, d, e, f;
@@ -51,11 +54,11 @@ int main(i32 argc, i8 **argv){
         {
             th_id = omp_get_thread_num();
 
-            f128 pointvecx = {0,0,0,0};
-            f128 pointvecy = {0,0,0,0};
-            f128 pointvecr = {0,0,0,0};
-            f128 pointvecg = {0,0,0,0};
-            f128 pointvecb = {0,0,0,0};
+            f128 pointvecx = { 0, 0, 0, 0 };
+            f128 pointvecy = { 0, 0, 0, 0 };
+            f128 pointvecr = { 0, 0, 0, 0 };
+            f128 pointvecg = { 0, 0, 0, 0 };
+            f128 pointvecb = { 0, 0, 0, 0 };
 
             f128tuple xyvec;
 
@@ -63,7 +66,7 @@ int main(i32 argc, i8 **argv){
 
             printf("thread id: %d\n", th_id);
             Sleep(1000);
-            for(u32 j = 0; j < 6 * 1000000; j++){
+            for(u32 j = 0; j < FLAME_ITTS * 1000000; j++){
 
                 if(j % 1000000 == 0){
                     printf("...%u", j/1000000);
@@ -150,12 +153,12 @@ int main(i32 argc, i8 **argv){
 
 
                     v1;
-                    v2;
+                    //v2;
                     v3;
                     //v4;
                     //v5;
                     //v6;
-                    v7;
+                    //v7;
                     //v8;
                     //v9;
                     //v10;
@@ -169,7 +172,9 @@ int main(i32 argc, i8 **argv){
                     //v18;
                     //v19;
                     //v20;
-
+                    v21;
+                    //v22;
+                    
                     xyvec.x.v = sumvecx;
                     xyvec.y.v = sumvecy;
 

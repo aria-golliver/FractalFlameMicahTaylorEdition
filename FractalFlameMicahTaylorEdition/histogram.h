@@ -11,7 +11,7 @@ void saveimage();
 
 #define swid 1920
 #define shei 1080
-#define ss 6
+#define ss 3
 
 #define hwid (swid * ss)
 #define hhei (shei * ss)

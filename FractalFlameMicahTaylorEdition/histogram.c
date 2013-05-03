@@ -109,10 +109,10 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
                     h[cell].g = cellb;
                     h[cell].b = cellg;
                     h[cell].a = cella;
-                    goodHits++;
+                    ++goodHits;
                 }
             } else {
-                missHits++;
+                ++missHits;
                 xarr = zerovec;
                 yarr = zerovec;
                 threadHits[th_id] = 0;

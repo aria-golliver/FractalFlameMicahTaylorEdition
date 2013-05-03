@@ -161,6 +161,9 @@
       <FloatingPointExpressionEvaluation>Source</FloatingPointExpressionEvaluation>
       <FlushDenormalResultsToZero>true</FlushDenormalResultsToZero>
       <FloatingPointModel>Fast2</FloatingPointModel>
+      <LevelOfStaticAnalysis>None</LevelOfStaticAnalysis>
+      <ModeOfStaticAnalysis>None</ModeOfStaticAnalysis>
+      <EmitDiagnosticsToFile>true</EmitDiagnosticsToFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

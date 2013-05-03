@@ -39,4 +39,16 @@ static __forceinline __m128 vcosh(const __m128 a) { return _mm_cosh_ps(a); }
 static __forceinline __m128 vtan(const __m128 a) { return _mm_tan_ps(a); }
 static __forceinline __m128 vatan2(const __m128 a, const __m128 b) { return _mm_atan2_ps(a, b); }
 
+static __forceinline __m128 vmod(__m128 a, __m128 b){
+    // divide ST0 by ST1
+    // round to integer
+    // multiply by ST1
+    // return difference between that and ST0
+    __m128 divide = _mm_div_ps(a, b);
+    __m128 rounded = _mm_round_ps(divide, _MM_FROUND_TO_ZERO);
+    __m128 multiplied = _mm_mul_ps(rounded, b);
+    __m128 difference = _mm_sub_ps(a, multiplied);
+    return difference;
+}
+
 #endif
