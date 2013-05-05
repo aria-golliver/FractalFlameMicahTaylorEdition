@@ -166,6 +166,7 @@
       <EmitDiagnosticsToFile>false</EmitDiagnosticsToFile>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <InterproceduralOptimization>MultiFile</InterproceduralOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -177,6 +178,7 @@
   <ItemGroup>
     <ClInclude Include="bmpfile.h" />
     <ClInclude Include="datatypes.h" />
+    <ClInclude Include="fractalgenome.h" />
     <ClInclude Include="histogram.h" />
     <ClInclude Include="rdrand.h" />
     <ClInclude Include="variations.h" />

@@ -15,7 +15,8 @@
 #define jump_table_size (1024)
 #define MAX_VARIATIONS (50)
 
-#define FLAME_ITTS (1)
+#define FLAME_ITTS (100)
+#define RUN_FOREVER (0)
 
 #define abs(x) (x >= 0 ? x : - x)
 
@@ -38,7 +39,7 @@ static f128 variation_weights[MAX_VARIATIONS];
 int main(i32 argc, i8 **argv){
     SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
 
-    while(1){
+    do {
         u64 tmp;
         if(fractal_name){
             free(fractal_name);
@@ -208,8 +209,7 @@ int main(i32 argc, i8 **argv){
         savegenome();
         printf("done\n");
         printf("-------------------------------\n");
-    }
-    //getchar();
+    } while(RUN_FOREVER);
 }
 
 void compressimage(){
@@ -226,6 +226,9 @@ void compressimage(){
         system(rand_filename);
         free(rand_filename);
 }
+
+#include "fractalgenome.h"
+#ifndef USING_GENOME
 
 void affineinit(){
     // init matrix values
@@ -263,6 +266,8 @@ void variationinit(){
         total += weight;
     }
 }
+
+#endif
 
 void savegenome(){
     FILE *file;
