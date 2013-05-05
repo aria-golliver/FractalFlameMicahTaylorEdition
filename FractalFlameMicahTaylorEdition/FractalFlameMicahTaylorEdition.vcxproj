@@ -164,6 +164,8 @@
       <LevelOfStaticAnalysis>None</LevelOfStaticAnalysis>
       <ModeOfStaticAnalysis>None</ModeOfStaticAnalysis>
       <EmitDiagnosticsToFile>false</EmitDiagnosticsToFile>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

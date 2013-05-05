@@ -285,7 +285,6 @@ void savegenome(){
         fprintf(file, "\tam[%d].red = %.20ff;\n", i, am[i].red);
         fprintf(file, "\tam[%d].blue = %.20ff;\n", i, am[i].blue);
         fprintf(file, "\tam[%d].green = %.20ff;\n", i, am[i].green);
-
     }
 
     for(u32 i = 0; i < jump_table_size; i++){
