@@ -243,9 +243,9 @@ void affineinit(){
         f32 r = rdrand_f32(&r);
         f32 g = rdrand_f32(&g);
         f32 b = rdrand_f32(&b);
-        am[i].red = abs(r);
+        am[i].red   = abs(r);
         am[i].green = abs(g);
-        am[i].blue = abs(b);
+        am[i].blue  = abs(b);
     }
 
     // init jump table
