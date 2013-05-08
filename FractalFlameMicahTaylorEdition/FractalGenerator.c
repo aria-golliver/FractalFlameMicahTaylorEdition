@@ -29,12 +29,13 @@ int main(i32 argc, i8 **argv){
     SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
 
     do {
-        u64 tmp;
+        u64 fractal_code;
         if(fractal_name){
             free(fractal_name);
         }
         fractal_name = (char *) calloc(1024, sizeof(char));
-        sprintf(fractal_name, "%llu", rdrand_u64(&tmp));
+        rdrand_u64(&fractal_code);
+        sprintf(fractal_name, "%llu", fractal_code);
 
         printf("Creating fractal named: %s\n", fractal_name);
         printf("allocating memory... ");
@@ -76,10 +77,10 @@ int main(i32 argc, i8 **argv){
                 affinematrix *am_itt[4];
                 u32 jumpTable[4];
 
-                jumpTable[0] = rdrand_u32(&jumpTable[0]);
-                jumpTable[1] = rdrand_u32(&jumpTable[1]);
-                jumpTable[2] = rdrand_u32(&jumpTable[2]);
-                jumpTable[3] = rdrand_u32(&jumpTable[3]);
+                rdrand_u32(&jumpTable[0]);
+                rdrand_u32(&jumpTable[1]);
+                rdrand_u32(&jumpTable[2]);
+                rdrand_u32(&jumpTable[3]);
 
                 for(u32 j = 0; j < 4; j++){
                     i32 n = jumpTable[j] % jump_table_size;
