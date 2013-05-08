@@ -36,6 +36,9 @@
     <ClInclude Include="fractalgenome.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FractalGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bmpfile.c">

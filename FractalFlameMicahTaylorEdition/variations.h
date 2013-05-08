@@ -234,7 +234,7 @@
     switchvec.v = vmod(vadd(theta, affinef), t22.v);                                                                \
     f128 tvec;                                                                                                      \
     for(int temp22 = 0; temp22 < 4; temp22++){                                                                      \
-        if(switchvec.f[temp22] > halft22.f[temp22]){                                                                \
+        if(switchvec.f[temp22] > halft22.f[temp22] / 2.0){                                                          \
             tvec.f[temp22] = theta.f[temp22] - halft22.f[temp22];                                                   \
         } else {                                                                                                    \
             tvec.f[temp22] = theta.f[temp22] + halft22.f[temp22];                                                   \
@@ -252,5 +252,107 @@
                     r,                                                                                              \
                     vsin(tvec.v)),                                                                                  \
                 variation_weights[22].v));
-    
+
+#define v25                                                                                                         \
+    f128 p1_25;                                                                                                     \
+    p1_25.v = vmul(                                                                                                 \
+        pivec,                                                                                                      \
+        vmul(                                                                                                       \
+            parametric_paramaters[25][0].v,                                                                         \
+            parametric_paramaters[25][0].v));                                                                       \
+                                                                                                                    \
+    __m128 p2_25 = parametric_paramaters[25][1].v;                                                                  \
+    f128 t_25;                                                                                                      \
+    t_25.v = vadd(                                                                                                  \
+                theta,                                                                                              \
+                vsub(                                                                                               \
+                    p2_25,                                                                                          \
+                    vmul(                                                                                           \
+                        p1_25.v,                                                                                    \
+                        vtrunc(                                                                                     \
+                            vdiv(                                                                                   \
+                                vmul(                                                                               \
+                                    twovec,                                                                         \
+                                    vmul(                                                                           \
+                                        theta,                                                                      \
+                                        p2_25)),                                                                    \
+                            p1_25.v)))));                                                                           \
+    __m128 theta_25;                                                                                                \
+    for(int i_25 = 0; i_25 < 4; i_25++){                                                                            \
+        if(t_25.f[i_25] > p1_25.f[i_25]){                                                                           \
+            theta_25.f[i_25] = theta.m128_f32[i_25] - p1_25.f[i_25]/2.0;                                            \
+        } else {                                                                                                    \
+            theta_25.f[i_25] = theta.m128_f32[i_25] + p1_25.f[i_25]/2.0;                                            \
+        }                                                                                                           \
+    }                                                                                                               \
+    __m128 newx_25 = vmul(r, vsin(theta_25));                                                                       \
+    __m128 newy_25 = vmul(r, vcos(theta_25));                                                                       \
+                                                                                                                    \
+    sumvecx = vadd(                                                                                                 \
+                sumvecx,                                                                                            \
+                vmul(                                                                                               \
+                    newx_25,                                                                                        \
+                    variation_weights[25].v));                                                                      \
+    sumvecy = vadd(                                                                                                 \
+                sumvecy,                                                                                            \
+                vmul(                                                                                               \
+                    newy_25,                                                                                        \
+                    variation_weights[25].v));
+
+#define v28                                                                                                         \
+    __m128 newx28 = vmul(                                                                                           \
+                    affinedx,                                                                                       \
+                    vdiv(                                                                                           \
+                        fourvec,                                                                                    \
+                        vadd(                                                                                       \
+                            rsq,                                                                                    \
+                            fourvec)));                                                                             \
+    __m128 newy28 = vmul(                                                                                           \
+                    affinedy,                                                                                       \
+                    vdiv(                                                                                           \
+                        fourvec,                                                                                    \
+                        vadd(                                                                                       \
+                            rsq,                                                                                    \
+                            fourvec)));                                                                             \
+    sumvecx = vadd(                                                                                                 \
+                sumvecx,                                                                                            \
+                vmul(                                                                                               \
+                    newx28,                                                                                         \
+                    variation_weights[29].v));                                                                      \
+    sumvecy = vadd(                                                                                                 \
+                sumvecy,                                                                                            \
+                vmul(                                                                                               \
+                    newy28,                                                                                         \
+                    variation_weights[29].v));
+
+#define v30                                                                                                         \
+    __m128 p1_30 = parametric_paramaters[30][0].v;                                                                  \
+    __m128 p2_30 = parametric_paramaters[30][1].v;                                                                  \
+    __m128 mult_30 = vdiv(                                                                                          \
+                        p2_30,                                                                                      \
+                        vsub(                                                                                       \
+                            p2_30,                                                                                  \
+                            vmul(                                                                                   \
+                                affinedy,                                                                           \
+                                vsin(p1_30))));                                                                     \
+                                                                                                                    \
+    __m128 newx_30 = vmul(                                                                                          \
+                        mult_30,                                                                                    \
+                        affinedx);                                                                                  \
+    __m128 newy_30 = vmul(                                                                                          \
+                        mult_30,                                                                                    \
+                        vmul(                                                                                       \
+                            affinedy,                                                                               \
+                            vcos(p1_30)));                                                                          \
+    sumvecx = vadd(                                                                                                 \
+                sumvecx,                                                                                            \
+                vmul(                                                                                               \
+                    newx_30,                                                                                        \
+                    variation_weights[30].v));                                                                      \
+    sumvecy = vadd(                                                                                                 \
+                sumvecy,                                                                                            \
+                vmul(                                                                                               \
+                    newy_30,                                                                                        \
+                    variation_weights[30].v));
+
 #endif

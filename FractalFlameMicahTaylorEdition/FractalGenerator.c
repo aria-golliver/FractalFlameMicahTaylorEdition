@@ -3,6 +3,7 @@
 #include "rdrand.h"
 #include "variations.h"
 #include "vmath.h"
+#include "FractalGenerator.h"
 
 #include <stdio.h>
 #include <time.h>
@@ -11,30 +12,18 @@
 
 #include <omp.h>
 
-#define n_affine_matrix (6)
-#define jump_table_size (1024)
-#define MAX_VARIATIONS (50)
 
-#define FLAME_ITTS (100)
-#define RUN_FOREVER (0)
 
 #define abs(x) (x >= 0 ? x : - x)
 
 char *fractal_name;
 
-typedef struct {
-    f32 a, b, c, d, e, f;
-    f32 red, green, blue;
-} affinematrix;
 
-void affineinit();
-void variationinit();
-void compressimage();
-void savegenome();
 
 static affinematrix am[n_affine_matrix];
 static affinematrix * affine_jump_table[jump_table_size];
 static f128 variation_weights[MAX_VARIATIONS];
+static f128 parametric_paramaters[MAX_VARIATIONS][4];
 
 int main(i32 argc, i8 **argv){
     SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
@@ -78,122 +67,124 @@ int main(i32 argc, i8 **argv){
 
             printf("thread id: %d\n", th_id);
             Sleep(1000);
-            for(u32 j = 0; j < FLAME_ITTS * 1000000; j++){
+            for(u64 j = 0; j < FLAME_ITTS * 10000000ull; j++){
 
-                if(j % 1000000 == 0){
-                    printf("...%u", j/1000000);
+                if(j % 10000000ull == 0){
+                    printf("...%u%", j/10000000ull);
                 }
 
-                for(u64 i = 0; i < 10; i++){
-                    affinematrix *am_itt[4];
-                    u32 jumpTable[4];
+                affinematrix *am_itt[4];
+                u32 jumpTable[4];
 
-                    jumpTable[0] = rdrand_u32(&jumpTable[0]);
-                    jumpTable[1] = rdrand_u32(&jumpTable[1]);
-                    jumpTable[2] = rdrand_u32(&jumpTable[2]);
-                    jumpTable[3] = rdrand_u32(&jumpTable[3]);
+                jumpTable[0] = rdrand_u32(&jumpTable[0]);
+                jumpTable[1] = rdrand_u32(&jumpTable[1]);
+                jumpTable[2] = rdrand_u32(&jumpTable[2]);
+                jumpTable[3] = rdrand_u32(&jumpTable[3]);
 
-                    for(u32 j = 0; j < 4; j++){
-                        i32 n = jumpTable[j] % jump_table_size;
-                        am_itt[j] = affine_jump_table[n];
-                    }
-
-                    // this is slow I think
-                    // will be fast with gather instruction on Haswell
-                    const __m128 affinea = { am_itt[0]->a, am_itt[1]->a, am_itt[2]->a, am_itt[3]->a };
-                    const __m128 affineb = { am_itt[0]->b, am_itt[1]->b, am_itt[2]->b, am_itt[3]->b };
-                    const __m128 affinec = { am_itt[0]->c, am_itt[1]->c, am_itt[2]->c, am_itt[3]->c };
-                    const __m128 affined = { am_itt[0]->d, am_itt[1]->d, am_itt[2]->d, am_itt[3]->d };
-                    const __m128 affinee = { am_itt[0]->e, am_itt[1]->e, am_itt[2]->e, am_itt[3]->e };
-                    const __m128 affinef = { am_itt[0]->f, am_itt[1]->f, am_itt[2]->f, am_itt[3]->f };
-
-                    const __m128 colorsetr = { am_itt[0]->red,   am_itt[1]->red,   am_itt[2]->red,   am_itt[3]->red   };
-                    const __m128 colorsetg = { am_itt[0]->green, am_itt[1]->green, am_itt[2]->green, am_itt[3]->green };
-                    const __m128 colorsetb = { am_itt[0]->blue,  am_itt[1]->blue,  am_itt[2]->blue,  am_itt[3]->blue  };
-                    
-
-
-                    const __m128 zerovec   = { 0, 0, 0, 0 };
-                    const __m128 onevec    = { 1, 1, 1, 1 };
-                    const __m128 twovec    = { 2, 2, 2, 2 };
-                    const __m128 threevec  = { 3, 3, 3, 3 };
-                    const __m128 pivec     = { PI, PI, PI, PI };
-                    const __m128 negonevec = { -1, -1, -1, -1 };
-
-                    // update colors: colorfinal = (colorold + colornew) / 2.0
-                    pointvecr.v = vdiv(vadd(pointvecr.v, colorsetr), twovec);
-                    pointvecg.v = vdiv(vadd(pointvecg.v, colorsetg), twovec);
-                    pointvecb.v = vdiv(vadd(pointvecb.v, colorsetb), twovec);
-                    
-                    const __m128 affinedx = vadd(
-                                                vadd(
-                                                    vmul(affinea, pointvecx.v),
-                                                    vmul(affineb, pointvecy.v)),
-                                                affinec);
-
-                    const __m128 affinedy = vadd(
-                                                vadd(
-                                                    vmul(affined, pointvecx.v),
-                                                    vmul(affinee, pointvecy.v)),
-                                                affinef);
-
-                    const __m128 rsq = vadd(
-                                        vmul(affinedx, affinedx),
-                                        vmul(affinedy, affinedy));
-
-                    const __m128 r = vsqrt(rsq);
-
-                    const __m128 theta = vatan2(affinedx, affinedy);
-
-                    const __m128 thetaaddr = vadd(theta, r);
-                    const __m128 thetasubr = vsub(theta, r);
-                    const __m128 sinrsq = vsin(rsq);
-                    const __m128 cosrsq = vcos(rsq);
-                    const __m128 sintheta = vsin(theta);
-                    const __m128 costheta = vcos(theta);
-                    const __m128 sinr = vsin(r);
-                    const __m128 cosr = vcos(r);
-                    const __m128 thetamulpi = vmul(theta, r);
-                    const __m128 thetadivpi = vdiv(theta, pivec);
-                    const __m128 pimulr = vmul(pivec, r);
-                    const __m128 invr = vdiv(onevec, r);
-                    const __m128 sqrtr = vsqrt(r);
-                    const __m128 halftheta = vdiv(theta, twovec);
-                    
-                    __m128 sumvecx = { 0, 0, 0, 0 };
-                    __m128 sumvecy = { 0, 0, 0, 0 };
-
-
-                    //v1;
-                    //v2;
-                    //v3;
-                    //v4;
-                    //v5;
-                    //v6;
-                    //v7;
-                    //v8;
-                    //v9;
-                    //v10;
-                    //v11;
-                    //v12;
-                    //v13;
-                    v14;
-                    //v15;
-                    //v16;
-                    v17;
-                    //v18;
-                    //v19;
-                    //v20;
-                    v21;
-                    v22;
-                    
-                    xyvec.x.v = sumvecx;
-                    xyvec.y.v = sumvecy;
-
-                    xyvec = histohit(xyvec, pointvecr, pointvecg, pointvecb, th_id);
-                    pointvecx = xyvec.x;
-                    pointvecy = xyvec.y;
+                for(u32 j = 0; j < 4; j++){
+                    i32 n = jumpTable[j] % jump_table_size;
+                    am_itt[j] = affine_jump_table[n];
                 }
+
+                // this is slow I think
+                // will be fast with gather instruction on Haswell
+                const __m128 affinea = { am_itt[0]->a, am_itt[1]->a, am_itt[2]->a, am_itt[3]->a };
+                const __m128 affineb = { am_itt[0]->b, am_itt[1]->b, am_itt[2]->b, am_itt[3]->b };
+                const __m128 affinec = { am_itt[0]->c, am_itt[1]->c, am_itt[2]->c, am_itt[3]->c };
+                const __m128 affined = { am_itt[0]->d, am_itt[1]->d, am_itt[2]->d, am_itt[3]->d };
+                const __m128 affinee = { am_itt[0]->e, am_itt[1]->e, am_itt[2]->e, am_itt[3]->e };
+                const __m128 affinef = { am_itt[0]->f, am_itt[1]->f, am_itt[2]->f, am_itt[3]->f };
+
+                const __m128 colorsetr = { am_itt[0]->red,   am_itt[1]->red,   am_itt[2]->red,   am_itt[3]->red   };
+                const __m128 colorsetg = { am_itt[0]->green, am_itt[1]->green, am_itt[2]->green, am_itt[3]->green };
+                const __m128 colorsetb = { am_itt[0]->blue,  am_itt[1]->blue,  am_itt[2]->blue,  am_itt[3]->blue  };
+                
+
+
+                const __m128 zerovec   = { 0, 0, 0, 0 };
+                const __m128 onevec    = { 1, 1, 1, 1 };
+                const __m128 twovec    = { 2, 2, 2, 2 };
+                const __m128 threevec  = { 3, 3, 3, 3 };
+                const __m128 fourvec  = { 4, 4, 4, 4 };
+                const __m128 pivec     = { PI, PI, PI, PI };
+                const __m128 negonevec = { -1, -1, -1, -1 };
+
+                // update colors: colorfinal = (colorold + colornew) / 2.0
+                pointvecr.v = vdiv(vadd(pointvecr.v, colorsetr), twovec);
+                pointvecg.v = vdiv(vadd(pointvecg.v, colorsetg), twovec);
+                pointvecb.v = vdiv(vadd(pointvecb.v, colorsetb), twovec);
+                
+                const __m128 affinedx = vadd(
+                                            vadd(
+                                                vmul(affinea, pointvecx.v),
+                                                vmul(affineb, pointvecy.v)),
+                                            affinec);
+
+                const __m128 affinedy = vadd(
+                                            vadd(
+                                                vmul(affined, pointvecx.v),
+                                                vmul(affinee, pointvecy.v)),
+                                            affinef);
+
+                const __m128 rsq = vadd(
+                                    vmul(affinedx, affinedx),
+                                    vmul(affinedy, affinedy));
+
+                const __m128 r = vsqrt(rsq);
+
+                const __m128 theta = vatan2(affinedx, affinedy);
+
+                const __m128 thetaaddr = vadd(theta, r);
+                const __m128 thetasubr = vsub(theta, r);
+                const __m128 sinrsq = vsin(rsq);
+                const __m128 cosrsq = vcos(rsq);
+                const __m128 sintheta = vsin(theta);
+                const __m128 costheta = vcos(theta);
+                const __m128 sinr = vsin(r);
+                const __m128 cosr = vcos(r);
+                const __m128 thetamulpi = vmul(theta, r);
+                const __m128 thetadivpi = vdiv(theta, pivec);
+                const __m128 pimulr = vmul(pivec, r);
+                const __m128 invr = vdiv(onevec, r);
+                const __m128 sqrtr = vsqrt(r);
+                const __m128 halftheta = vdiv(theta, twovec);
+                
+                __m128 sumvecx = { 0, 0, 0, 0 };
+                __m128 sumvecy = { 0, 0, 0, 0 };
+
+                //theta.m128_f32
+                //v1;
+                //v2;
+                //v3;
+                v4;
+                //v5;
+                //v6;
+                //v7;
+                //v8;
+                //v9;
+                //v10;
+                //v11;
+                //v12;
+                //v13;
+                v14;
+                //v15;
+                v16;
+                v17;
+                //v18;
+                //v19;
+                //v20;
+                //v21;
+                //v22;
+                v25;
+                v28;
+                v30;
+                
+                xyvec.x.v = sumvecx;
+                xyvec.y.v = sumvecy;
+
+                xyvec = histohit(xyvec, pointvecr, pointvecg, pointvecb, th_id);
+                pointvecx = xyvec.x;
+                pointvecy = xyvec.y;
             }
         }
 
@@ -265,6 +256,15 @@ void variationinit(){
         variation_weights[i].f[3] = weight;
         total += weight;
     }
+    
+    for(u32 i = 0; i < MAX_VARIATIONS; i++){
+        for(u32 j = 0; j < 4; j++){
+            f32 r = rdrand_f32(&r);
+            for(u32 k = 0; k < 4; k++){
+                parametric_paramaters[i][j].f[k] = r;
+            }
+        }
+    }
 }
 
 #endif
@@ -288,8 +288,8 @@ void savegenome(){
         fprintf(file, "\tam[%d].e = %.20ff;\n", i, am[i].e);
         fprintf(file, "\tam[%d].f = %.20ff;\n", i, am[i].f);
         fprintf(file, "\tam[%d].red = %.20ff;\n", i, am[i].red);
-        fprintf(file, "\tam[%d].blue = %.20ff;\n", i, am[i].blue);
         fprintf(file, "\tam[%d].green = %.20ff;\n", i, am[i].green);
+        fprintf(file, "\tam[%d].blue = %.20ff;\n", i, am[i].blue);
     }
 
     for(u32 i = 0; i < jump_table_size; i++){
@@ -304,6 +304,16 @@ void savegenome(){
         fprintf(file, "\tvariation_weights[%d].f[2] = %.20ff;\n", i, variation_weights[i].f[2]);
         fprintf(file, "\tvariation_weights[%d].f[3] = %.20ff;\n", i, variation_weights[i].f[3]);
     }
+
+    for(u32 i = 0; i < MAX_VARIATIONS; i++){
+        for(u32 j = 0; j < 4; j++){
+            //f32 r = rdrand_f32(&r);
+            for(u32 k = 0; k < 4; k++){
+                fprintf(file, "\tparametric_paramaters[%d][%d].f[%d] = %.20f;\n", i, j, k, parametric_paramaters[i][j].f[k]);
+            }
+        }
+    }
+
     fprintf(file, "}\n");
     fclose(file);
 }

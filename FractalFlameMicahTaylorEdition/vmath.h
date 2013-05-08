@@ -23,6 +23,8 @@ static __forceinline __m128 vcosh  (const __m128 a)                 { return _mm
 static __forceinline __m128 vtan   (const __m128 a)                 { return _mm_tan_ps(a);      }
 static __forceinline __m128 vatan2 (const __m128 a, const __m128 b) { return _mm_atan2_ps(a, b); }
 
+static __forceinline __m128 vtrunc(__m128 a){ return _mm_round_ps(a, _MM_FROUND_TO_ZERO); }
+
 static __forceinline __m128 vmod(__m128 a, __m128 b){
     // divide a by b
     // round to integer
@@ -34,6 +36,8 @@ static __forceinline __m128 vmod(__m128 a, __m128 b){
     __m128 difference = _mm_sub_ps(a, multiplied);
     return difference;
 }
+
+
 // checks all values for NaN or INFINITY
 // adapted from here http://www.gamedev.net/page/resources/_/technical/game-programming/practical-cross-platform-simd-math-part-2-r3101?recache=true
 static int vvalid( __m128 v )
