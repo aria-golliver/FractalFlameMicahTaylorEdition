@@ -15,10 +15,10 @@ void saveimage();
 
 #define hwid (swid * ss)
 #define hhei (shei * ss)
-#define xshrink 15.0
-#define yshrink 15.0
+#define xshrink 1.0
+#define yshrink 1.0
 
 #define xoffset 0.0
-#define yoffset 0.0
+#define yoffset 0.5
 
 #endif

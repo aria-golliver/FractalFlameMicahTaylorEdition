@@ -27,8 +27,8 @@ const __m128 yoffsetvec = { yoffset, yoffset, yoffset, yoffset };
 
 const __m128 halfhwidvec = { hwid/2.0, hwid/2.0, hwid/2.0, hwid/2.0 };
 const __m128 halfhheivec = { hhei/2.0, hhei/2.0, hhei/2.0, hhei/2.0 };
-const __m128 hwidvecvec = { hwid, hwid, hwid, hwid };
-const __m128 hheivecvec = { hhei, hhei, hhei, hhei };
+const __m128 hwidvec = { hwid, hwid, hwid, hwid };
+const __m128 hheivec = { hhei, hhei, hhei, hhei };
 
 const __m128 hwidShrunkvec = { hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink };
 const __m128 hheiShrunkvec = { hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink };
@@ -112,8 +112,8 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
                     cellb /= 2;
 
                     h[cell].r = cellr;
-                    h[cell].g = cellb;
-                    h[cell].b = cellg;
+                    h[cell].g = cellg;
+                    h[cell].b = cellb;
                     ++goodHits;
                 } else {
                     ++missHits;
@@ -156,7 +156,7 @@ void saveimage(){
         u8 g = h[i].g * 0xFF * a;
         u8 b = h[i].b * 0xFF * a;
 
-        rgb_pixel_t pixel = {r, g, b, 0xFF};
+        rgb_pixel_t pixel = {b, g, r, 0xFF};
         u32 x = i % hwid;
         u32 y = i / hwid;
         bmp_set_pixel(bmp, x, y, pixel);
