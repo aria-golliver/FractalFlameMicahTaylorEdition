@@ -46,4 +46,12 @@ static int vvalid( __m128 v )
     test         = _mm_cmpeq_ps(test, _mm_setzero_ps());
     return 0x0f == _mm_movemask_ps(test);
 }
+
+static __m128 vload(const float *p){
+    return _mm_load_ps(p);
+}
+
+static void vstore(float *p, __m128 v){
+    _mm_store_ps(p, v);
+}
 #endif

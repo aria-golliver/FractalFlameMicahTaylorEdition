@@ -36,14 +36,16 @@ typedef union f128_t f128;
 
 typedef union {
     struct {
-        f32 r, g, b;
-        f32 a;
+        f32 r, g, b, a;
     };
-    f128;
+    __m128 vec;
 } histocell;
 
-typedef struct {
-    f32 r, g, b;
+typedef union {
+    struct {
+        f32 r, g, b, a;
+    };
+    _declspec(align(16)) __m128 vec;
 } colorset;
 
 typedef struct {
@@ -51,8 +53,13 @@ typedef struct {
 } point;
 
 typedef struct {
-    f128 x;
-    f128 y;
+    _declspec(align(16)) f128 x;
+    _declspec(align(16)) f128 y;
 } f128tuple;
+
+typedef struct {
+    f32 a, b, c, d, e, f;
+    _declspec(align(16)) colorset color;
+} affinematrix;
 
 #endif

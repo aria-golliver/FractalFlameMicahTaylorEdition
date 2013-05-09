@@ -24,16 +24,16 @@
 
 #define v4                                                                                                          \
     __m128 newx = vmul(vdiv(                                                                                        \
-                    vmul(                                                                                           \
-                        vsub(affinedx, affinedy),                                                                   \
-                        vadd(affinedx, affinedy)),                                                                  \
-                    r), variation_weights[4].v);                                                                    \
+                        vmul(                                                                                           \
+                            vsub(affinedx, affinedy),                                                                   \
+                            vadd(affinedx, affinedy)),                                                                  \
+                        r), variation_weights[4].v);                                                                    \
                                                                                                                     \
     __m128 newy = vmul(vdiv(                                                                                        \
-                    vmul(                                                                                           \
-                        vmul(affinedx, affinedy),                                                                   \
-                        twovec),                                                                                    \
-                    r), variation_weights[4].v);                                                                    \
+                        vmul(                                                                                           \
+                            vmul(affinedx, affinedy),                                                                   \
+                            twovec),                                                                                    \
+                        r), variation_weights[4].v);                                                                    \
                                                                                                                     \
     sumvecx = vadd(sumvecx, newx);                                                                                  \
     sumvecy = vadd(sumvecx, newy);
@@ -75,7 +75,8 @@
 
 #define v13                                                                                                         \
     __m128 o13_omega;                                                                                               \
-    f32 rand = rdrand_f32(&rand);                                                                                   \
+    f32 rand;                                                                                                       \
+    rdrand_f32(&rand);                                                                                              \
     if(rand < 0.5) {                                                                                                \
         o13_omega = pivec;                                                                                          \
     } else {                                                                                                        \

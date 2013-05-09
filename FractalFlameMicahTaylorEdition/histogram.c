@@ -17,32 +17,29 @@
 #include "histogram.h"
 
 
-histocell *h;
+static histocell h[hwid * hhei];
 volatile long *locks;
 
 
 __m128 xshrinkvec = { xshrink, xshrink, xshrink, xshrink };
 __m128 yshrinkvec = { yshrink, yshrink, yshrink, yshrink };
 
-const __m128 xoffsetvec = { xoffset, xoffset, xoffset, xoffset };
-const __m128 yoffsetvec = { yoffset, yoffset, yoffset, yoffset };
+static const __m128 xoffsetvec = { xoffset, xoffset, xoffset, xoffset };
+static const __m128 yoffsetvec = { yoffset, yoffset, yoffset, yoffset };
 
-const __m128 halfhwidvec = { hwid/2.0, hwid/2.0, hwid/2.0, hwid/2.0 };
-const __m128 halfhheivec = { hhei/2.0, hhei/2.0, hhei/2.0, hhei/2.0 };
-const __m128 hwidvec = { hwid, hwid, hwid, hwid };
-const __m128 hheivec = { hhei, hhei, hhei, hhei };
+static const __m128 halfhwidvec = { hwid/2.0, hwid/2.0, hwid/2.0, hwid/2.0 };
+static const __m128 halfhheivec = { hhei/2.0, hhei/2.0, hhei/2.0, hhei/2.0 };
 
-const __m128 hwidShrunkvec = { hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink };
-const __m128 hheiShrunkvec = { hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink };
+static const __m128 hwidShrunkvec = { hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink };
+static const __m128 hheiShrunkvec = { hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink };
+static const __m128 halfRGB        =  { 0.5, 0.5, 0.5, 1.0};
+static const __m128 incrementAlpha =  { 0, 0, 0, 1};
 
 void histoinit(){
     int numcells = hwid * hhei;
     size_t histogramSize = numcells * sizeof(histocell);
 
-    if(h == NULL)
-        h = (histocell *) calloc(numcells, sizeof(histocell));
-    else
-        memset(h, 0, histogramSize);
+    memset(h, 0, histogramSize);
 
     if(locks == NULL)
         locks = (volatile long *) calloc(numcells, sizeof(volatile long));
@@ -68,15 +65,12 @@ typedef union {
     u32 u;
 } f32u32;
 
-f128 zerovec = { 0, 0, 0, 0 };
+static f128 zerovec = { 0, 0, 0, 0 };
 
-f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128 bvec, const i32 th_id){
+f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_id){
     if(threadHits[th_id]++ > 20){
         f128 xarr = xyvec.x;
         f128 yarr = xyvec.y;
-        const f128 rarr = rvec;
-        const f128 garr = gvec;
-        const f128 barr = bvec;
 
         if(vvalid(xarr.v) && vvalid(yarr.v)){
 
@@ -97,36 +91,28 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
                 u32 ix = scaledX.f[i];
                 u32 iy = scaledY.f[i];
 
-                f32 r = rarr.f[i];
-                f32 g = garr.f[i];
-                f32 b = barr.f[i];
-
-                u64 cell = ix + (iy * hwid);
                 if(ix < hwid && iy < hhei){
+                    u64 cell = ix + (iy * hwid);
                     // lock the cell
-                    while(_InterlockedExchange(&(locks[ix]), 1));
-                    f32 cellr, cellg, cellb;
+                    //while(_InterlockedExchange(&(locks[ix]), 1));
+                    __m128 histocolor = vload((float *)&(h[cell]));
+                    
 
-                    cellr = h[cell].r;
-                    cellg = h[cell].g;
-                    cellb = h[cell].b;
-                    ++h[cell].a;
+                    // add half the new color with the exising color
+                    histocolor = vadd(
+                                    vmul(histocolor, halfRGB), 
+                                    vmul(pointcolors[i].vec, halfRGB));
 
-                    cellr += r;
-                    cellg += g;
-                    cellb += b;
+                    // increment alpha channel
+                    histocolor = vadd(histocolor, incrementAlpha);
 
-                    cellr *= 0.5;
-                    cellg *= 0.5;
-                    cellb *= 0.5;
+                    // write back
+                    vstore((float *)&(h[cell]), histocolor);
 
-                    h[cell].r = cellr;
-                    h[cell].g = cellg;
-                    h[cell].b = cellb;
                     ++goodHits;
 
                     // unlock the cell
-                    _InterlockedExchange(&(locks[ix]), 0);
+                    //_InterlockedExchange(&(locks[ix]), 0);
                 } else {
                     ++missHits;
                 }
@@ -148,7 +134,7 @@ void saveimage(){
 
     bmpfile_t *bmp;
 
-    u64 amax = 1;
+    f32 amax = 1;
 
     for(int i = 0; i < hwid * hhei; i++){
         amax = amax > h[i].a ? amax : h[i].a;
@@ -162,7 +148,7 @@ void saveimage(){
     printf("generating image");
 
     cilk_for (i32 i = 0; i < hwid * hhei; i++){
-        f64 a = (log((f64)h[i].a) / log((f64)amax));
+        f32 a = log(h[i].a) / log(amax);
 
         u8 r = h[i].r * 0xFF * a;
         u8 g = h[i].g * 0xFF * a;

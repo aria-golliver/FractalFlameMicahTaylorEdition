@@ -5,13 +5,13 @@
 #include <immintrin.h>
 void histoinit();
 
-f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128 bvec, const i32 th_id);
+f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_id);
 
 void saveimage();
 
 #define swid 1920
 #define shei 1080
-#define ss 4
+#define ss 2
 
 #define hwid (swid * ss)
 #define hhei (shei * ss)
