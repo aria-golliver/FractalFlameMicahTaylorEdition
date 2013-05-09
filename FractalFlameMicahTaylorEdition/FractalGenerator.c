@@ -27,6 +27,13 @@ static f128 parametric_paramaters[MAX_VARIATIONS][4];
 
 int main(i32 argc, i8 **argv){
     SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
+    u64 dl;
+    rdrand_u64(&dl);
+    i32 dd;
+    rdrand_i32(&dd);
+    f32 df;
+    rdrand_f32(&df);
+    printf("%d, %ull, %f\n", dd, dl, df);
 
     do {
         u64 fractal_code;
@@ -225,16 +232,19 @@ void compressimage(){
 void affineinit(){
     // init matrix values
     for(u32 i = 0; i < n_affine_matrix; i++){
-        am[i].a = rdrand_f32(&(am[i].a));
-        am[i].b = rdrand_f32(&(am[i].b));
-        am[i].c = rdrand_f32(&(am[i].c));
-        am[i].d = rdrand_f32(&(am[i].d));
-        am[i].e = rdrand_f32(&(am[i].e));
-        am[i].f = rdrand_f32(&(am[i].f));
+        rdrand_f32(&(am[i].a));
+        rdrand_f32(&(am[i].b));
+        rdrand_f32(&(am[i].c));
+        rdrand_f32(&(am[i].d));
+        rdrand_f32(&(am[i].e));
+        rdrand_f32(&(am[i].f));
 
-        f32 r = rdrand_f32(&r);
-        f32 g = rdrand_f32(&g);
-        f32 b = rdrand_f32(&b);
+        f32 r;
+        rdrand_f32(&r);
+        f32 g;
+        rdrand_f32(&g);
+        f32 b;
+        rdrand_f32(&b);
         am[i].red   = abs(r);
         am[i].green = abs(g);
         am[i].blue  = abs(b);
@@ -243,14 +253,17 @@ void affineinit(){
     // init jump table
     for(i32 i = 0; i < jump_table_size; i++){
         u32 tmp;
-        affine_jump_table[i] = &(am[rdrand_u32(&tmp) % n_affine_matrix]);
+        rdrand_u32(&tmp);
+        affine_jump_table[i] = &(am[tmp % n_affine_matrix]);
     }
 }
 
 void variationinit(){
     float total = 0;
     for(u32 i = 0; i < MAX_VARIATIONS; i++){
-        float weight = abs(rdrand_f32(&weight));
+        float weight;
+        rdrand_f32(&weight);
+        weight = abs(weight);
         variation_weights[i].f[0] = weight;
         variation_weights[i].f[1] = weight;
         variation_weights[i].f[2] = weight;
@@ -260,7 +273,8 @@ void variationinit(){
     
     for(u32 i = 0; i < MAX_VARIATIONS; i++){
         for(u32 j = 0; j < 4; j++){
-            f32 r = rdrand_f32(&r);
+            f32 r;
+            rdrand_f32(&r);
             for(u32 k = 0; k < 4; k++){
                 parametric_paramaters[i][j].f[k] = r;
             }

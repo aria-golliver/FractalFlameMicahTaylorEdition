@@ -17,7 +17,7 @@ void savegenome();
 #define jump_table_size (1000)
 #define MAX_VARIATIONS (50)
 
-#define FLAME_ITTS (2)
-#define RUN_FOREVER (1)
+#define FLAME_ITTS (1)
+#define RUN_FOREVER (0)
 
 #endif

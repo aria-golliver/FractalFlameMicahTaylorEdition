@@ -27,9 +27,19 @@ typedef union {
     };
 } rgba8;
 
-typedef struct {
-    f32 r, g, b;
-    u64 a;
+union f128_t{
+    _declspec(align(16)) f32 f[4];
+    __m128 v;
+};
+
+typedef union f128_t f128;
+
+typedef union {
+    struct {
+        f32 r, g, b;
+        f32 a;
+    };
+    f128;
 } histocell;
 
 typedef struct {
@@ -39,14 +49,6 @@ typedef struct {
 typedef struct {
     f32 x, y;
 } point;
-
-
-union f128_t{
-    _declspec(align(16)) f32 f[4];
-    __m128 v;
-};
-
-typedef union f128_t f128;
 
 typedef struct {
     f128 x;

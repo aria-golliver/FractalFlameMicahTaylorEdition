@@ -9,6 +9,7 @@
 #include <cilk\cilk.h>
 #include <cilk\cilk_api_windows.h>
 #include <cilk\cilk_stub.h>
+#include <intrin.h>
 
 #include "datatypes.h"
 #include "rdrand.h"
@@ -17,6 +18,7 @@
 
 
 histocell *h;
+volatile long *locks;
 
 
 __m128 xshrinkvec = { xshrink, xshrink, xshrink, xshrink };
@@ -41,6 +43,11 @@ void histoinit(){
         h = (histocell *) calloc(numcells, sizeof(histocell));
     else
         memset(h, 0, histogramSize);
+
+    if(locks == NULL)
+        locks = (volatile long *) calloc(numcells, sizeof(volatile long));
+    //else
+       // memset(locks, 0, hwid * sizeof(volatile long));
 
     if(!h){
         printf("Could not allocate %zu bytes\nPress enter to exit.", hwid * hhei * sizeof(histocell));
@@ -85,10 +92,10 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
                                 vadd(yarr.v, yoffsetvec),
                                 hheiShrunkvec),
                             halfhheivec);
-
+            
             for (i32 i = 0; i < 4; i++){
-                u64 ix = scaledX.f[i];
-                u64 iy = scaledY.f[i];
+                u32 ix = scaledX.f[i];
+                u32 iy = scaledY.f[i];
 
                 f32 r = rarr.f[i];
                 f32 g = garr.f[i];
@@ -96,6 +103,8 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
 
                 u64 cell = ix + (iy * hwid);
                 if(ix < hwid && iy < hhei){
+                    // lock the cell
+                    while(_InterlockedExchange(&(locks[ix]), 1));
                     f32 cellr, cellg, cellb;
 
                     cellr = h[cell].r;
@@ -107,14 +116,17 @@ f128tuple histohit(f128tuple xyvec, const f128 rvec, const f128 gvec, const f128
                     cellg += g;
                     cellb += b;
 
-                    cellr /= 2;
-                    cellg /= 2;
-                    cellb /= 2;
+                    cellr *= 0.5;
+                    cellg *= 0.5;
+                    cellb *= 0.5;
 
                     h[cell].r = cellr;
                     h[cell].g = cellg;
                     h[cell].b = cellb;
                     ++goodHits;
+
+                    // unlock the cell
+                    _InterlockedExchange(&(locks[ix]), 0);
                 } else {
                     ++missHits;
                 }
