@@ -276,7 +276,7 @@ void variationinit(){
 #endif
 
 void savegenome(){
-    /*
+    
     FILE *file;
     char *genome_filename = (char *) calloc(1024, sizeof(char));
     strcat(genome_filename, "images/");
@@ -284,6 +284,14 @@ void savegenome(){
     strcat(genome_filename, ".fractalgenome");
     file = fopen(genome_filename, "w");
     free(genome_filename);
+
+    fprintf(file, "#ifndef __FRACTALGENOME_H__\n\
+                   #define __FRACTALGENOME_H__ __FRACTALGENOME_H__\n\
+                                     \
+                   // comment this line out to use a random genome\n\
+                   #define USING_GENOME 1\n\
+                   \
+                   #ifdef USING_GENOME\n");
 
     fprintf(file, "void variationinit(){\n");
     for(u32 i = 0; i < n_affine_matrix; i++){
@@ -294,9 +302,9 @@ void savegenome(){
         fprintf(file, "\tam[%d].d = %.20ff;\n", i, am[i].d);
         fprintf(file, "\tam[%d].e = %.20ff;\n", i, am[i].e);
         fprintf(file, "\tam[%d].f = %.20ff;\n", i, am[i].f);
-        fprintf(file, "\tam[%d].red = %.20ff;\n", i, am[i].red);
-        fprintf(file, "\tam[%d].green = %.20ff;\n", i, am[i].green);
-        fprintf(file, "\tam[%d].blue = %.20ff;\n", i, am[i].blue);
+        fprintf(file, "\tam[%d].color.r = %.20ff;\n", i, am[i].color.r);
+        fprintf(file, "\tam[%d].color.g = %.20ff;\n", i, am[i].color.g);
+        fprintf(file, "\tam[%d].color.b = %.20ff;\n", i, am[i].color.b);
     }
 
     for(u32 i = 0; i < jump_table_size; i++){
@@ -320,8 +328,10 @@ void savegenome(){
             }
         }
     }
-
+    
     fprintf(file, "}\n");
+    fprintf(file, "#endif\n");
+    fprintf(file, "#endif\n");
     fclose(file);
-    */
+    
 }
