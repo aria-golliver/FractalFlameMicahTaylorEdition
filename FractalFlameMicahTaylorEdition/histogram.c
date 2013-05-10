@@ -33,6 +33,7 @@ static const __m128 halfhheivec = { hhei/2.0, hhei/2.0, hhei/2.0, hhei/2.0 };
 static const __m128 hwidShrunkvec = { hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink };
 static const __m128 hheiShrunkvec = { hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink };
 static const __m128 halfRGB        =  { 0.5, 0.5, 0.5, 1.0};
+static const __m128 halfRGBA       =  { 0.5, 0.5, 0.5, 0.5};
 static const __m128 incrementAlpha =  { 0, 0, 0, 1};
 
 void histoinit(){
@@ -101,10 +102,10 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
                     // add half the new color with the exising color
                     histocolor = vadd(
                                     vmul(histocolor, halfRGB), 
-                                    vmul(pointcolors[i].vec, halfRGB));
+                                    vmul(pointcolors[i].vec, halfRGBA));
 
                     // increment alpha channel
-                    histocolor = vadd(histocolor, incrementAlpha);
+                    //histocolor = vadd(histocolor, incrementAlpha);
 
                     // write back
                     vstore((float *)&(h[cell]), histocolor);

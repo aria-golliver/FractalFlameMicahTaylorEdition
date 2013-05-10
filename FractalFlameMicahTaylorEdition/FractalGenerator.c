@@ -238,7 +238,7 @@ void affineinit(){
         am[i].color.r  = r / maxColor;
         am[i].color.g  = g / maxColor;
         am[i].color.b  = b / maxColor;
-        am[i].color.a  = 0;
+        am[i].color.a  = 2;
     }
 
     // init jump table
@@ -260,6 +260,15 @@ void variationinit(){
         variation_weights[i].f[2] = weight;
         variation_weights[i].f[3] = weight;
         total += weight;
+    }
+
+    if(total < 1.0){
+        for(u32 i = 0; i < MAX_VARIATIONS; i++){
+            variation_weights[i].f[0] /= total;
+            variation_weights[i].f[1] /= total;
+            variation_weights[i].f[2] /= total;
+            variation_weights[i].f[3] /= total;
+        }
     }
 
     for(u32 i = 0; i < MAX_VARIATIONS; i++){
@@ -305,6 +314,7 @@ void savegenome(){
         fprintf(file, "\tam[%d].color.r = %.20ff;\n", i, am[i].color.r);
         fprintf(file, "\tam[%d].color.g = %.20ff;\n", i, am[i].color.g);
         fprintf(file, "\tam[%d].color.b = %.20ff;\n", i, am[i].color.b);
+        fprintf(file, "\tam[%d].color.a = %.20ff;\n", i, am[i].color.a);
     }
 
     for(u32 i = 0; i < jump_table_size; i++){
