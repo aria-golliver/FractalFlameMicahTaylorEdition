@@ -18,11 +18,7 @@
 
 
 static histocell h[hwid * hhei];
-volatile long *locks;
-
-
-__m128 xshrinkvec = { xshrink, xshrink, xshrink, xshrink };
-__m128 yshrinkvec = { yshrink, yshrink, yshrink, yshrink };
+static volatile long *locks;
 
 static const __m128 xoffsetvec = { xoffset, xoffset, xoffset, xoffset };
 static const __m128 yoffsetvec = { yoffset, yoffset, yoffset, yoffset };
@@ -34,7 +30,6 @@ static const __m128 hwidShrunkvec = { hwid/xshrink, hwid/xshrink, hwid/xshrink, 
 static const __m128 hheiShrunkvec = { hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink };
 static const __m128 halfRGB        =  { 0.5, 0.5, 0.5, 1.0};
 static const __m128 halfRGBA       =  { 0.5, 0.5, 0.5, 0.5};
-static const __m128 incrementAlpha =  { 0, 0, 0, 1};
 
 void histoinit(){
     int numcells = hwid * hhei;
@@ -55,16 +50,11 @@ void histoinit(){
 
 }
 
-u64 goodHits = 0;
-u64 missHits = 0;
-u64 badHits = 0;
+static u64 goodHits = 0;
+static u64 missHits = 0;
+static u64 badHits = 0;
 
-u64 threadHits[12];
-
-typedef union {
-    f32 f;
-    u32 u;
-} f32u32;
+static u64 threadHits[12];
 
 static f128 zerovec = { 0, 0, 0, 0 };
 
@@ -95,7 +85,8 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
                 if(ix < hwid && iy < hhei){
                     u64 cell = ix + (iy * hwid);
                     // lock the cell
-                    //while(_InterlockedExchange(&(locks[ix]), 1));
+                    while(_InterlockedExchange(&(locks[ix]), 1));
+
                     __m128 histocolor = vload((float *)&(h[cell]));
                     
 
@@ -113,7 +104,7 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
                     ++goodHits;
 
                     // unlock the cell
-                    //_InterlockedExchange(&(locks[ix]), 0);
+                    _InterlockedExchange(&(locks[ix]), 0);
                 } else {
                     ++missHits;
                 }
