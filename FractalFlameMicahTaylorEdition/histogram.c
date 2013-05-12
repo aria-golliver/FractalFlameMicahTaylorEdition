@@ -28,7 +28,6 @@ _declspec(align(64)) static const __m128 halfhheivec   = { hhei/2.0, hhei/2.0, h
 
 _declspec(align(64)) static const __m128 hwidShrunkvec = { hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink };
 _declspec(align(64)) static const __m128 hheiShrunkvec = { hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink };
-_declspec(align(64)) static const __m128 halfRGB       =  { 0.5, 0.5, 0.5, 1.0};
 
 void histoinit(){
     int numcells = hwid * hhei;
@@ -119,7 +118,7 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
     return xyvec;
 }
 
-#define max(a,b) (a > b ? a : b) 
+#define MAX(a,b) (a > b ? a : b) 
 
 void saveimage(){
     printf("Good hits: %llu\t Miss hits: %llu\t Bad hits: %llu\t %f\n", goodHits, missHits, badHits, (f32)goodHits/(badHits > 0 ? badHits : 1));
@@ -142,7 +141,7 @@ void saveimage(){
     cilk_for (i32 i = 0; i < hwid * hhei; i++){
         f32 a = log(h[i].a) / log(amax);
 
-        f32 maxColor = max(h[i].r, max(h[i].g, h[i].b));
+        f32 maxColor = MAX(h[i].r, MAX(h[i].g, h[i].b));
 
         if(maxColor <= 0)
             maxColor = 1;

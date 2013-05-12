@@ -12,8 +12,8 @@ void savegenome();
 #define jump_table_size (1000)
 #define MAX_VARIATIONS (50)
 
-#define FLAME_ITTS (20)
-#define RUN_FOREVER (0)
+#define FLAME_ITTS (2)
+#define RUN_FOREVER (1)
 
 
 static const __m128 zerovec   = { 0, 0, 0, 0 };

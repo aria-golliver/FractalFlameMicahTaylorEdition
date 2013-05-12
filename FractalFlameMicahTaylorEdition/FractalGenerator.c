@@ -35,6 +35,7 @@ int main(i32 argc, i8 **argv){
         u64 fractal_code;
         if(fractal_name){
             free(fractal_name);
+            fractal_name = 0;
         }
         fractal_name = (char *) calloc(1024, sizeof(char));
         rdrand_u64(&fractal_code);
@@ -72,10 +73,13 @@ int main(i32 argc, i8 **argv){
             colorset pointcolors[4];
             memset(pointcolors, 0, sizeof(pointcolors));
 
-            for(u64 j = 0; j < FLAME_ITTS * 10000000ull; j++){
 
-                if(j % 10000000ull == 0){
-                    printf("...%u%", j/10000000ull);
+            const u64 FLAME_ITTS_multiplier = 10000000;
+
+            for(u64 j = 0; j < FLAME_ITTS * FLAME_ITTS_multiplier; j++){
+
+                if(j % FLAME_ITTS_multiplier == 0){
+                    printf("...%u%", j/FLAME_ITTS_multiplier);
                 }
 
                 affinematrix *am_itt[4];
