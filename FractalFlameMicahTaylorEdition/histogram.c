@@ -90,7 +90,7 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
 
                     // add half the new color with the exising color
                     histocolor = vadd(
-                                    vmul(histocolor, halfRGB), 
+                                    histocolor,
                                     pointcolors[i].vec);
 
                     // increment alpha channel
@@ -119,6 +119,8 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
     return xyvec;
 }
 
+#define max(a,b) (a > b ? a : b) 
+
 void saveimage(){
     printf("Good hits: %llu\t Miss hits: %llu\t Bad hits: %llu\t %f\n", goodHits, missHits, badHits, (f32)goodHits/(badHits > 0 ? badHits : 1));
 
@@ -140,9 +142,14 @@ void saveimage(){
     cilk_for (i32 i = 0; i < hwid * hhei; i++){
         f32 a = log(h[i].a) / log(amax);
 
-        u8 r = h[i].r * 0xFF * a;
-        u8 g = h[i].g * 0xFF * a;
-        u8 b = h[i].b * 0xFF * a;
+        f32 maxColor = max(h[i].r, max(h[i].g, h[i].b));
+
+        if(maxColor <= 0)
+            maxColor = 1;
+
+        u8 r = (h[i].r / maxColor) * 0xFF * a;
+        u8 g = (h[i].g / maxColor) * 0xFF * a;
+        u8 b = (h[i].b / maxColor) * 0xFF * a;
 
         rgb_pixel_t pixel = {b, g, r, 0xFF};
         u32 x = i % hwid;

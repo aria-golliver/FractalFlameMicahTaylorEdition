@@ -235,9 +235,9 @@ void affineinit(){
 
         f32 maxColor = max(r,max(g,b));
 
-        am[i].color.r  = r / maxColor / 2.0;
-        am[i].color.g  = g / maxColor / 2.0;
-        am[i].color.b  = b / maxColor / 2.0;
+        am[i].color.r  = r / maxColor;
+        am[i].color.g  = g / maxColor;
+        am[i].color.b  = b / maxColor;
         am[i].color.a  = 1;
     }
 
