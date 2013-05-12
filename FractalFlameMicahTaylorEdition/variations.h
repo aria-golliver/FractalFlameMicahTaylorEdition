@@ -77,7 +77,7 @@
     __m128 o13_omega;                                                                                               \
     f32 rand;                                                                                                       \
     rdrand_f32(&rand);                                                                                              \
-    if(rand < 0.5) {                                                                                                \
+    if(rand < 0.5f) {                                                                                               \
         o13_omega = pivec;                                                                                          \
     } else {                                                                                                        \
         o13_omega = zerovec;                                                                                        \
@@ -91,18 +91,18 @@
     for(int i14 = 0; i14 < 4; i14++){                                                                               \
         f32 fx = affinedx.m128_f32[i14];                                                                            \
         f32 fy = affinedy.m128_f32[i14];                                                                            \
-        if(fx >= 0 && fy >= 0){                                                                                     \
+        if(fx >= 0.0f && fy >= 0.0f){                                                                               \
             o14_x.m128_f32[i14] = fx;                                                                               \
             o14_y.m128_f32[i14] = fy;                                                                               \
-        } else if (fx < 0 && fy >= 0){                                                                              \
+        } else if (fx < 0.0f && fy >= 0.0f){                                                                        \
             o14_x.m128_f32[i14] = 2.0 * fx;                                                                         \
             o14_y.m128_f32[i14] = fy;                                                                               \
-        } else if(fx >= 0 && fy < 0){                                                                               \
+        } else if(fx >= 0.0f && fy < 0.0f){                                                                         \
             o14_x.m128_f32[i14] = fx;                                                                               \
-            o14_y.m128_f32[i14] = fy / 2.0;                                                                         \
+            o14_y.m128_f32[i14] = fy / 2.0f;                                                                        \
         } else {                                                                                                    \
             o14_x.m128_f32[i14] = 2.0 * fx;                                                                         \
-            o14_y.m128_f32[i14] = fy / 2.0;                                                                         \
+            o14_y.m128_f32[i14] = fy / 2.0f;                                                                        \
         }                                                                                                           \
     }                                                                                                               \
     sumvecx = vadd(sumvecx, vmul(o14_x, variation_weights[14].v));                                                  \
@@ -234,8 +234,8 @@
     f128 switchvec;                                                                                                 \
     switchvec.v = vmod(vadd(theta, affinef), t22.v);                                                                \
     f128 tvec;                                                                                                      \
-    for(int temp22 = 0; temp22 < 4; temp22++){                                                                      \
-        if(switchvec.f[temp22] > halft22.f[temp22] / 2.0){                                                          \
+    for(int temp22 = 0; temp22 < 4.0f; temp22++){                                                                   \
+        if(switchvec.f[temp22] > halft22.f[temp22] / 2.0f){                                                         \
             tvec.f[temp22] = theta.f[temp22] - halft22.f[temp22];                                                   \
         } else {                                                                                                    \
             tvec.f[temp22] = theta.f[temp22] + halft22.f[temp22];                                                   \
@@ -281,9 +281,9 @@
     __m128 theta_25;                                                                                                \
     for(int i_25 = 0; i_25 < 4; i_25++){                                                                            \
         if(t_25.f[i_25] > p1_25.f[i_25]){                                                                           \
-            theta_25.f[i_25] = theta.m128_f32[i_25] - p1_25.f[i_25]/2.0;                                            \
+            theta_25.f[i_25] = theta.m128_f32[i_25] - p1_25.f[i_25]/2.0f;                                           \
         } else {                                                                                                    \
-            theta_25.f[i_25] = theta.m128_f32[i_25] + p1_25.f[i_25]/2.0;                                            \
+            theta_25.f[i_25] = theta.m128_f32[i_25] + p1_25.f[i_25]/2.0f;                                           \
         }                                                                                                           \
     }                                                                                                               \
     __m128 newx_25 = vmul(r, vsin(theta_25));                                                                       \
