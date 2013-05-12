@@ -16,10 +16,10 @@
 
 char *fractal_name;
 
-static affinematrix am[n_affine_matrix];
-static affinematrix * affine_jump_table[jump_table_size];
-static f128 variation_weights[MAX_VARIATIONS];
-static f128 parametric_paramaters[MAX_VARIATIONS][4];
+_declspec(align(64)) static affinematrix am[n_affine_matrix];
+_declspec(align(64)) static affinematrix * affine_jump_table[jump_table_size];
+_declspec(align(64)) static f128 variation_weights[MAX_VARIATIONS];
+_declspec(align(64)) static f128 parametric_paramaters[MAX_VARIATIONS][4];
 
 int main(i32 argc, i8 **argv){
     SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
@@ -235,10 +235,10 @@ void affineinit(){
 
         f32 maxColor = max(r,max(g,b));
 
-        am[i].color.r  = r / maxColor;
-        am[i].color.g  = g / maxColor;
-        am[i].color.b  = b / maxColor;
-        am[i].color.a  = 2;
+        am[i].color.r  = r / maxColor / 2.0;
+        am[i].color.g  = g / maxColor / 2.0;
+        am[i].color.b  = b / maxColor / 2.0;
+        am[i].color.a  = 1;
     }
 
     // init jump table
@@ -295,12 +295,12 @@ void savegenome(){
     free(genome_filename);
 
     fprintf(file, "#ifndef __FRACTALGENOME_H__\n\
-                   #define __FRACTALGENOME_H__ __FRACTALGENOME_H__\n\
-                                     \
-                   // comment this line out to use a random genome\n\
-                   #define USING_GENOME 1\n\
-                   \
-                   #ifdef USING_GENOME\n");
+#define __FRACTALGENOME_H__ __FRACTALGENOME_H__\n\
+\
+// comment this line out to use a random genome\n\
+#define USING_GENOME 1\n\
+\
+#ifdef USING_GENOME\n\n");
 
     fprintf(file, "void variationinit(){\n");
     for(u32 i = 0; i < n_affine_matrix; i++){

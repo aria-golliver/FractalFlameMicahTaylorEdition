@@ -27,7 +27,7 @@ typedef union {
     };
 } rgba8;
 
-union f128_t{
+union f128_t {
     _declspec(align(16)) f32 f[4];
     __m128 v;
 };
@@ -35,7 +35,7 @@ union f128_t{
 typedef union f128_t f128;
 
 typedef union {
-    struct {
+    _declspec(align(16)) struct {
         f32 r, g, b, a;
     };
     __m128 vec;

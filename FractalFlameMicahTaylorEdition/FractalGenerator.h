@@ -13,7 +13,7 @@ void savegenome();
 #define MAX_VARIATIONS (50)
 
 #define FLAME_ITTS (1)
-#define RUN_FOREVER (1)
+#define RUN_FOREVER (0)
 
 
 static const __m128 zerovec   = { 0, 0, 0, 0 };

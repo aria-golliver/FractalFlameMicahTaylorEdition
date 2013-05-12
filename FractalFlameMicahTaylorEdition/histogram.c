@@ -16,20 +16,19 @@
 #include "bmpfile.h"
 #include "histogram.h"
 
+// make sure everything is aligned to a 64 bit cache line
+_declspec(align(64)) static histocell h[hwid * hhei];
+_declspec(align(64)) static omp_lock_t locks[hhei];
 
-static histocell h[hwid * hhei];
-static volatile long *locks;
+_declspec(align(64)) static const __m128 xoffsetvec    = { xoffset, xoffset, xoffset, xoffset };
+_declspec(align(64)) static const __m128 yoffsetvec    = { yoffset, yoffset, yoffset, yoffset };
 
-static const __m128 xoffsetvec = { xoffset, xoffset, xoffset, xoffset };
-static const __m128 yoffsetvec = { yoffset, yoffset, yoffset, yoffset };
+_declspec(align(64)) static const __m128 halfhwidvec   = { hwid/2.0, hwid/2.0, hwid/2.0, hwid/2.0 };
+_declspec(align(64)) static const __m128 halfhheivec   = { hhei/2.0, hhei/2.0, hhei/2.0, hhei/2.0 };
 
-static const __m128 halfhwidvec = { hwid/2.0, hwid/2.0, hwid/2.0, hwid/2.0 };
-static const __m128 halfhheivec = { hhei/2.0, hhei/2.0, hhei/2.0, hhei/2.0 };
-
-static const __m128 hwidShrunkvec = { hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink };
-static const __m128 hheiShrunkvec = { hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink };
-static const __m128 halfRGB        =  { 0.5, 0.5, 0.5, 1.0};
-static const __m128 halfRGBA       =  { 0.5, 0.5, 0.5, 0.5};
+_declspec(align(64)) static const __m128 hwidShrunkvec = { hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink };
+_declspec(align(64)) static const __m128 hheiShrunkvec = { hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink };
+_declspec(align(64)) static const __m128 halfRGB       =  { 0.5, 0.5, 0.5, 1.0};
 
 void histoinit(){
     int numcells = hwid * hhei;
@@ -37,10 +36,9 @@ void histoinit(){
 
     memset(h, 0, histogramSize);
 
-    if(locks == NULL)
-        locks = (volatile long *) calloc(numcells, sizeof(volatile long));
-    //else
-       // memset(locks, 0, hwid * sizeof(volatile long));
+    memset(locks, 0, hwid * sizeof(volatile long));
+    for(int i = 0; i < hhei; i++)
+        omp_init_lock(&(locks[i]));
 
     if(!h){
         printf("Could not allocate %zu bytes\nPress enter to exit.", hwid * hhei * sizeof(histocell));
@@ -85,7 +83,7 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
                 if(ix < hwid && iy < hhei){
                     u64 cell = ix + (iy * hwid);
                     // lock the cell
-                    while(_InterlockedExchange(&(locks[ix]), 1));
+                    //omp_set_lock(&(locks[iy]));
 
                     __m128 histocolor = vload((float *)&(h[cell]));
                     
@@ -93,7 +91,7 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
                     // add half the new color with the exising color
                     histocolor = vadd(
                                     vmul(histocolor, halfRGB), 
-                                    vmul(pointcolors[i].vec, halfRGBA));
+                                    pointcolors[i].vec);
 
                     // increment alpha channel
                     //histocolor = vadd(histocolor, incrementAlpha);
@@ -104,7 +102,7 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
                     ++goodHits;
 
                     // unlock the cell
-                    _InterlockedExchange(&(locks[ix]), 0);
+                    //omp_unset_lock(&(locks[iy]));
                 } else {
                     ++missHits;
                 }
@@ -128,7 +126,7 @@ void saveimage(){
 
     f32 amax = 1;
 
-    for(int i = 0; i < hwid * hhei; i++){
+    for(u32 i = 0; i < hwid * hhei; i++){
         amax = amax > h[i].a ? amax : h[i].a;
     }
 
