@@ -23,13 +23,6 @@ _declspec(align(64)) static f128 parametric_paramaters[MAX_VARIATIONS][4];
 
 int main(i32 argc, i8 **argv){
     SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
-    u64 dl;
-    rdrand_u64(&dl);
-    i32 dd;
-    rdrand_i32(&dd);
-    f32 df;
-    rdrand_f32(&df);
-    printf("%d, %ull, %f\n", dd, dl, df);
 
     do {
         u64 fractal_code;
@@ -68,7 +61,6 @@ int main(i32 argc, i8 **argv){
             u32 tmp;
 
             printf("thread id: %d\n", th_id);
-            Sleep(1000);
 
             colorset pointcolors[4];
             memset(pointcolors, 0, sizeof(pointcolors));
@@ -309,36 +301,36 @@ void savegenome(){
     fprintf(file, "void variationinit(){\n");
     for(u32 i = 0; i < n_affine_matrix; i++){
         affinematrix matrix = am[i];
-        fprintf(file, "\tam[%d].a = %.20ff;\n", i, am[i].a);
-        fprintf(file, "\tam[%d].b = %.20ff;\n", i, am[i].b);
-        fprintf(file, "\tam[%d].c = %.20ff;\n", i, am[i].c);
-        fprintf(file, "\tam[%d].d = %.20ff;\n", i, am[i].d);
-        fprintf(file, "\tam[%d].e = %.20ff;\n", i, am[i].e);
-        fprintf(file, "\tam[%d].f = %.20ff;\n", i, am[i].f);
-        fprintf(file, "\tam[%d].color.r = %.20ff;\n", i, am[i].color.r);
-        fprintf(file, "\tam[%d].color.g = %.20ff;\n", i, am[i].color.g);
-        fprintf(file, "\tam[%d].color.b = %.20ff;\n", i, am[i].color.b);
-        fprintf(file, "\tam[%d].color.a = %.20ff;\n", i, am[i].color.a);
+        fprintf(file, "\tam[%u].a = %.20ff;\n", i, am[i].a);
+        fprintf(file, "\tam[%u].b = %.20ff;\n", i, am[i].b);
+        fprintf(file, "\tam[%u].c = %.20ff;\n", i, am[i].c);
+        fprintf(file, "\tam[%u].d = %.20ff;\n", i, am[i].d);
+        fprintf(file, "\tam[%u].e = %.20ff;\n", i, am[i].e);
+        fprintf(file, "\tam[%u].f = %.20ff;\n", i, am[i].f);
+        fprintf(file, "\tam[%u].color.r = %.20ff;\n", i, am[i].color.r);
+        fprintf(file, "\tam[%u].color.g = %.20ff;\n", i, am[i].color.g);
+        fprintf(file, "\tam[%u].color.b = %.20ff;\n", i, am[i].color.b);
+        fprintf(file, "\tam[%u].color.a = %.20ff;\n", i, am[i].color.a);
     }
 
     for(u32 i = 0; i < jump_table_size; i++){
-        fprintf(file, "\taffine_jump_table[%d] = &(am[%d]);\n", i, affine_jump_table[i] - am);
+        fprintf(file, "\taffine_jump_table[%u] = &(am[%u]);\n", i, (u32)( affine_jump_table[i] - am));
     }
     fprintf(file, "}\n");
 
     fprintf(file, "void affineinit(){\n");
     for(u32 i = 0; i < MAX_VARIATIONS; i++){
-        fprintf(file, "\tvariation_weights[%d].f[0] = %.20ff;\n", i, variation_weights[i].f[0]);
-        fprintf(file, "\tvariation_weights[%d].f[1] = %.20ff;\n", i, variation_weights[i].f[1]);
-        fprintf(file, "\tvariation_weights[%d].f[2] = %.20ff;\n", i, variation_weights[i].f[2]);
-        fprintf(file, "\tvariation_weights[%d].f[3] = %.20ff;\n", i, variation_weights[i].f[3]);
+        fprintf(file, "\tvariation_weights[%u].f[0] = %.20ff;\n", i, variation_weights[i].f[0]);
+        fprintf(file, "\tvariation_weights[%u].f[1] = %.20ff;\n", i, variation_weights[i].f[1]);
+        fprintf(file, "\tvariation_weights[%u].f[2] = %.20ff;\n", i, variation_weights[i].f[2]);
+        fprintf(file, "\tvariation_weights[%u].f[3] = %.20ff;\n", i, variation_weights[i].f[3]);
     }
 
     for(u32 i = 0; i < MAX_VARIATIONS; i++){
         for(u32 j = 0; j < 4; j++){
             //f32 r = rdrand_f32(&r);
             for(u32 k = 0; k < 4; k++){
-                fprintf(file, "\tparametric_paramaters[%d][%d].f[%d] = %.20f;\n", i, j, k, parametric_paramaters[i][j].f[k]);
+                fprintf(file, "\tparametric_paramaters[%u][%u].f[%u] = %.20f;\n", i, j, k, parametric_paramaters[i][j].f[k]);
             }
         }
     }

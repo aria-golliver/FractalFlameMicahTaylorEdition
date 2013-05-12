@@ -1,7 +1,7 @@
 #ifndef __FRACTALGENOME_H__
 #define __FRACTALGENOME_H__ __FRACTALGENOME_H__
 // comment this line out to use a random genome
-#define USING_GENOME 1
+//#define USING_GENOME 1
 #ifdef USING_GENOME
 
 void variationinit(){
