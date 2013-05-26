@@ -166,7 +166,8 @@
       <EmitDiagnosticsToFile>false</EmitDiagnosticsToFile>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <InterproceduralOptimization>MultiFile</InterproceduralOptimization>
+      <InterproceduralOptimization>NoIPO</InterproceduralOptimization>
+      <AdditionalIncludeDirectories>C:\Users\aaron\Documents\Visual Studio 2012\Projects\FractalFlameMicahTaylorEdition\FractalFlameMicahTaylorEdition\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -178,6 +179,7 @@
   <ItemGroup>
     <ClInclude Include="bmpfile.h" />
     <ClInclude Include="datatypes.h" />
+    <ClInclude Include="fractaldisplay.h" />
     <ClInclude Include="FractalGenerator.h" />
     <ClInclude Include="fractalgenome.h" />
     <ClInclude Include="histogram.h" />
@@ -187,6 +189,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bmpfile.c" />
+    <ClCompile Include="fractaldisplay.c" />
     <ClCompile Include="FractalGenerator.c" />
     <ClCompile Include="histogram.c" />
   </ItemGroup>

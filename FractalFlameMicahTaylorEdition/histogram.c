@@ -51,9 +51,9 @@ static u64 goodHits = 0;
 static u64 missHits = 0;
 static u64 badHits = 0;
 
-static u64 threadHits[12];
+_declspec(align(64)) static u64 threadHits[12];
 
-static f128 zerovec = { 0, 0, 0, 0 };
+_declspec(align(64)) static f128 zerovec = { 0, 0, 0, 0 };
 
 f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_id){
     if(threadHits[th_id]++ > 20){
@@ -83,7 +83,8 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
                     u64 cell = ix + (iy * hwid);
                     // lock the cell
                     //omp_set_lock(&(locks[iy]));
-
+                    
+                    // forces an aligned load
                     __m128 histocolor = vload((float *)&(h[cell]));
                     
 
@@ -95,7 +96,7 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
                     // increment alpha channel
                     //histocolor = vadd(histocolor, incrementAlpha);
 
-                    // write back
+                    // write back, forced aligned
                     vstore((float *)&(h[cell]), histocolor);
 
                     ++goodHits;

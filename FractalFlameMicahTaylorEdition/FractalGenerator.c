@@ -4,6 +4,7 @@
 #include "variations.h"
 #include "vmath.h"
 #include "FractalGenerator.h"
+#include "fractaldisplay.h"
 
 #include <stdio.h>
 #include <time.h>
@@ -38,6 +39,7 @@ int main(i32 argc, i8 **argv){
         printf("allocating memory... ");
         histoinit();
         affineinit();
+        displayinit();
         variationinit();
 
 
@@ -53,16 +55,14 @@ int main(i32 argc, i8 **argv){
         {
             th_id = omp_get_thread_num();
 
-            f128 pointvecx = { 0, 0, 0, 0 };
-            f128 pointvecy = { 0, 0, 0, 0 };
+            _declspec(align(64)) f128 pointvecx = { 0, 0, 0, 0 };
+            _declspec(align(64)) f128 pointvecy = { 0, 0, 0, 0 };
 
-            f128tuple xyvec;
-
-            u32 tmp;
+            _declspec(align(64)) f128tuple xyvec;
 
             printf("thread id: %d\n", th_id);
 
-            colorset pointcolors[4];
+            _declspec(align(64)) colorset pointcolors[4];
             memset(pointcolors, 0, sizeof(pointcolors));
 
 
@@ -74,8 +74,8 @@ int main(i32 argc, i8 **argv){
                     printf("...%u%", j/FLAME_ITTS_multiplier);
                 }
 
-                affinematrix *am_itt[4];
-                u32 jumpTable[4];
+                _declspec(align(64)) affinematrix *am_itt[4];
+                _declspec(align(64)) u32 jumpTable[4];
 
                 rdrand_u32(&jumpTable[0]);
                 rdrand_u32(&jumpTable[1]);
@@ -89,12 +89,12 @@ int main(i32 argc, i8 **argv){
 
                 // this is slow I think
                 // will be fast with gather instruction on Haswell
-                const __m128 affinea = { am_itt[0]->a, am_itt[1]->a, am_itt[2]->a, am_itt[3]->a };
-                const __m128 affineb = { am_itt[0]->b, am_itt[1]->b, am_itt[2]->b, am_itt[3]->b };
-                const __m128 affinec = { am_itt[0]->c, am_itt[1]->c, am_itt[2]->c, am_itt[3]->c };
-                const __m128 affined = { am_itt[0]->d, am_itt[1]->d, am_itt[2]->d, am_itt[3]->d };
-                const __m128 affinee = { am_itt[0]->e, am_itt[1]->e, am_itt[2]->e, am_itt[3]->e };
-                const __m128 affinef = { am_itt[0]->f, am_itt[1]->f, am_itt[2]->f, am_itt[3]->f };
+                _declspec(align(64)) const __m128 affinea = { am_itt[0]->a, am_itt[1]->a, am_itt[2]->a, am_itt[3]->a };
+                _declspec(align(64)) const __m128 affineb = { am_itt[0]->b, am_itt[1]->b, am_itt[2]->b, am_itt[3]->b };
+                _declspec(align(64)) const __m128 affinec = { am_itt[0]->c, am_itt[1]->c, am_itt[2]->c, am_itt[3]->c };
+                _declspec(align(64)) const __m128 affined = { am_itt[0]->d, am_itt[1]->d, am_itt[2]->d, am_itt[3]->d };
+                _declspec(align(64)) const __m128 affinee = { am_itt[0]->e, am_itt[1]->e, am_itt[2]->e, am_itt[3]->e };
+                _declspec(align(64)) const __m128 affinef = { am_itt[0]->f, am_itt[1]->f, am_itt[2]->f, am_itt[3]->f };
                 
                 __m128 colorset;
                 for(int c = 0; c < 4; c++){
@@ -102,43 +102,43 @@ int main(i32 argc, i8 **argv){
                     pointcolors[c].vec = vmul(vadd(pointcolors[c].vec, newcolor), halfvec);
                 }
                 
-                const __m128 affinedx = vadd(
-                                            vadd(
-                                                vmul(affinea, pointvecx.v),
-                                                vmul(affineb, pointvecy.v)),
-                                            affinec);
+                _declspec(align(64)) const __m128 affinedx = vadd(
+                                                                vadd(
+                                                                    vmul(affinea, pointvecx.v),
+                                                                    vmul(affineb, pointvecy.v)),
+                                                                affinec);
 
-                const __m128 affinedy = vadd(
-                                            vadd(
-                                                vmul(affined, pointvecx.v),
-                                                vmul(affinee, pointvecy.v)),
-                                            affinef);
+                _declspec(align(64)) const __m128 affinedy = vadd(
+                                                                vadd(
+                                                                    vmul(affined, pointvecx.v),
+                                                                    vmul(affinee, pointvecy.v)),
+                                                                affinef);
 
-                const __m128 rsq = vadd(
-                                    vmul(affinedx, affinedx),
-                                    vmul(affinedy, affinedy));
+                _declspec(align(64)) const __m128 rsq = vadd(
+                                                    vmul(affinedx, affinedx),
+                                                    vmul(affinedy, affinedy));
                 
-                const __m128 r = vsqrt(rsq);
+                _declspec(align(64)) const __m128 r = vsqrt(rsq);
                 
-                const __m128 theta = vatan2(affinedx, affinedy);
+                _declspec(align(64)) const __m128 theta = vatan2(affinedx, affinedy);
                 
-                const __m128 thetaaddr = vadd(theta, r);
-                const __m128 thetasubr = vsub(theta, r);
-                const __m128 sinrsq = vsin(rsq);
-                const __m128 cosrsq = vcos(rsq);
-                const __m128 sintheta = vsin(theta);
-                const __m128 costheta = vcos(theta);
-                const __m128 sinr = vsin(r);
-                const __m128 cosr = vcos(r);
-                const __m128 thetamulpi = vmul(theta, r);
-                const __m128 thetadivpi = vdiv(theta, pivec);
-                const __m128 pimulr = vmul(pivec, r);
-                const __m128 invr = vdiv(onevec, r);
-                const __m128 sqrtr = vsqrt(r);
-                const __m128 halftheta = vdiv(theta, twovec);
+                _declspec(align(64)) const __m128 thetaaddr = vadd(theta, r);
+                _declspec(align(64)) const __m128 thetasubr = vsub(theta, r);
+                _declspec(align(64)) const __m128 sinrsq = vsin(rsq);
+                _declspec(align(64)) const __m128 cosrsq = vcos(rsq);
+                _declspec(align(64)) const __m128 sintheta = vsin(theta);
+                _declspec(align(64)) const __m128 costheta = vcos(theta);
+                _declspec(align(64)) const __m128 sinr = vsin(r);
+                _declspec(align(64)) const __m128 cosr = vcos(r);
+                _declspec(align(64)) const __m128 thetamulpi = vmul(theta, r);
+                _declspec(align(64)) const __m128 thetadivpi = vdiv(theta, pivec);
+                _declspec(align(64)) const __m128 pimulr = vmul(pivec, r);
+                _declspec(align(64)) const __m128 invr = vdiv(onevec, r);
+                _declspec(align(64)) const __m128 sqrtr = vsqrt(r);
+                _declspec(align(64)) const __m128 halftheta = vdiv(theta, twovec);
                 
-                __m128 sumvecx = { 0, 0, 0, 0 };
-                __m128 sumvecy = { 0, 0, 0, 0 };
+                _declspec(align(64)) __m128 sumvecx = { 0, 0, 0, 0 };
+                _declspec(align(64)) __m128 sumvecy = { 0, 0, 0, 0 };
 
                 //v1;
                 //v2;
@@ -154,14 +154,14 @@ int main(i32 argc, i8 **argv){
                 //v12;
                 //v13;
                 //v14;
-                //v15;
+                v15;
                 //v16;
                 //v17;
-                //v18;
+                v18;
                 //v19;
                 //v20;
                 //v21;
-                //v22;
+                v22;
                 //v25;
                 //v28;
                 //v30;
