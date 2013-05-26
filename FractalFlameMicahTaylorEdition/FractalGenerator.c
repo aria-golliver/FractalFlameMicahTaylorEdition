@@ -24,7 +24,8 @@ _declspec(align(64)) static f128 parametric_paramaters[MAX_VARIATIONS][4];
 
 int main(i32 argc, i8 **argv){
     SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
-
+    
+    displayinit();
     do {
         u64 fractal_code;
         if(fractal_name){
@@ -39,7 +40,6 @@ int main(i32 argc, i8 **argv){
         printf("allocating memory... ");
         histoinit();
         affineinit();
-        displayinit();
         variationinit();
 
 
@@ -66,12 +66,19 @@ int main(i32 argc, i8 **argv){
             memset(pointcolors, 0, sizeof(pointcolors));
 
 
-            const u64 FLAME_ITTS_multiplier = 10000000;
+            const u64 FLAME_ITTS_multiplier = 1000000;
 
             for(u64 j = 0; j < FLAME_ITTS * FLAME_ITTS_multiplier; j++){
 
+                
+
+
                 if(j % FLAME_ITTS_multiplier == 0){
                     printf("...%u%", j/FLAME_ITTS_multiplier);
+                    #pragma omp master
+                    {
+                        updateDisplay();
+                    }
                 }
 
                 _declspec(align(64)) affinematrix *am_itt[4];
