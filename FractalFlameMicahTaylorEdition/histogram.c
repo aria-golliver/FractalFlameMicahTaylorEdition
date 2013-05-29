@@ -90,8 +90,8 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
 
                 if(ix < hwid && iy < hhei){
                     const u64 cell = ix + (iy * hwid);
-                    // lock the cell
-                    // omp_set_lock(&(locks[iy]));
+                    // lock the row
+                    omp_set_lock(&(locks[iy]));
                     
                     // load the existing data
                     // the cache miss here takes up maybe 2/3s of the program's execution time
@@ -109,7 +109,7 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
                     ++goodHits;
 
                     // unlock the cell
-                    //omp_unset_lock(&(locks[iy]));
+                    omp_unset_lock(&(locks[iy]));
                 } else {
                     ++missHits;
                 }

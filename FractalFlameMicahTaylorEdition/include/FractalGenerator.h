@@ -8,14 +8,15 @@ void variationinit();
 void compressimage();
 void savegenome();
 
-#define n_affine_matrix (6)
+#define n_affine_matrix (4)
 #define jump_table_size (1000)
 #define MAX_VARIATIONS (50)
 
-#define FLAME_ITTS (3)
+#define FLAME_ITTS (2)
 #define RUN_FOREVER (1)
 
-#define DISPLAY yes please
+// remove this define to disable fractal visualization and free up another core for generation
+#define DISPLAY enabled
 
 
 static const __m128 zerovec   = { 0, 0, 0, 0 };

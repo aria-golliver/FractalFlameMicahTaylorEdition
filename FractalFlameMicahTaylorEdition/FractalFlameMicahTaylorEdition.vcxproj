@@ -243,7 +243,7 @@
       <EmitDiagnosticsToFile>false</EmitDiagnosticsToFile>
       <ExceptionHandling>false</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <InterproceduralOptimization>NoIPO</InterproceduralOptimization>
+      <InterproceduralOptimization>MultiFile</InterproceduralOptimization>
       <AdditionalIncludeDirectories>C:\Users\aaron\Documents\Visual Studio 2012\Projects\FractalFlameMicahTaylorEdition\FractalFlameMicahTaylorEdition\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>

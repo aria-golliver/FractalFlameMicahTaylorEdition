@@ -48,34 +48,29 @@ void displayreset(void){
 }
 
 void updateDisplay(void){
-    memset(texture, 0, swid * shei * sizeof(GLRGB8));
+    // memset(texture, 0, swid * shei * sizeof(GLRGB8));
     
     f32 amax = 1;
 
     for(u64 y = 0; y < shei; y++){
         for(u64 x = 0; x < swid; x++){
-            u64 cells = x + (y * swid);
-            u64 cellh = (x * ss) + (y * ss * ss * swid);
+            const u64 cells = x + (y * swid);
+            const u64 cellh = (x * ss) + (y * ss * ss * swid);
             tmphistogram[cells] = histoget(cellh);
             amax = MAX(tmphistogram[cells].a, amax);
         }
     }
 
+    const f32 logamax = log(amax);
+
     for(u64 y = 0; y < shei; y++){
         for(u64 x = 0; x < swid; x++){
-            u64 cell = x + (y * swid);
-            const f32 a = log(tmphistogram[cell].a) / log(amax);
-
-            f32 maxColor = MAX3(tmphistogram[cell].r, tmphistogram[cell].g, tmphistogram[cell].b);
-
-            if(maxColor <= 0)
-                maxColor = 1;
+            const u64 cell = x + (y * swid);
+            const f32 a = log(tmphistogram[cell].a) / logamax;
 
             const u8 r = (tmphistogram[cell].r / tmphistogram[cell].a) * 0xFF * a;
             const u8 g = (tmphistogram[cell].g / tmphistogram[cell].a) * 0xFF * a;
             const u8 b = (tmphistogram[cell].b / tmphistogram[cell].a) * 0xFF * a;
-
-            const GLRGB8 pixel = {r, g, b};
             
             texture[cell].c[0] = r;
             texture[cell].c[1] = g;

@@ -33,6 +33,7 @@ int main(i32 argc, i8 **argv){
         #ifdef DISPLAY
             displayreset();
         #endif
+
         u64 fractal_code;
         if(fractal_name){
             free(fractal_name);
@@ -169,9 +170,9 @@ int main(i32 argc, i8 **argv){
                 _declspec(align(64)) __m128 sumvecx = { 0, 0, 0, 0 };
                 _declspec(align(64)) __m128 sumvecy = { 0, 0, 0, 0 };
 
-                //v1;
+                v1;
                 //v2;
-                //v3;
+                v3;
                 //v4;
                 //v5;
                 //v6;
@@ -180,7 +181,7 @@ int main(i32 argc, i8 **argv){
                 v9;
                 //v10;
                 //v11;
-                v12;
+                //v12;
                 //v13;
                 //v14;
                 v15;
@@ -271,7 +272,7 @@ void affineinit(){
         g = abs(g);
         b = abs(b);
 
-        f32 maxColor = MAX3(r,g,b);
+        f32 maxColor = 1;MAX3(r,g,b);
 
         am[i].color.r  = r / maxColor;
         am[i].color.g  = g / maxColor;
