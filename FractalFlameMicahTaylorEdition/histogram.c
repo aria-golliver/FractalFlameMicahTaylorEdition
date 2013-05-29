@@ -69,7 +69,7 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
         // if they have, reset them and the threadHits counter to 0
         if(vvalid(xarr.v) && vvalid(yarr.v)){
 
-            // scale the poits from fractal-space to histogram-space
+            // scale the points from fractal-space to histogram-space
             f128 scaledX;
             scaledX.v = vadd(
                            vmul(
@@ -85,11 +85,11 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
             
             // extract each point and plot
             for (i32 i = 0; i < 4; i++){
-                u32 ix = scaledX.f[i];
-                u32 iy = scaledY.f[i];
+                const u32 ix = scaledX.f[i];
+                const u32 iy = scaledY.f[i];
 
                 if(ix < hwid && iy < hhei){
-                    u64 cell = ix + (iy * hwid);
+                    const u64 cell = ix + (iy * hwid);
                     // lock the cell
                     // omp_set_lock(&(locks[iy]));
                     
@@ -125,6 +125,7 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
 }
 
 #define MAX(a,b) (a > b ? a : b) 
+#define MAX3(a,b,c) MAX(a, MAX(b, c))
 
 void saveimage(){
     printf("Good hits: %llu\t Miss hits: %llu\t Bad hits: %llu\t %f\n", goodHits, missHits, badHits, (f32)goodHits/(badHits > 0 ? badHits : 1));
@@ -137,28 +138,25 @@ void saveimage(){
         amax = amax > h[i].a ? amax : h[i].a;
     }
 
-    if((bmp = bmp_create(hwid, hhei, 24)) == NULL){
-        printf("Invalid depth value: %d.\n", 24);
-        exit(1);
-    }
+    bmp = bmp_create(hwid, hhei, 24);
 
     printf("generating image");
 
     cilk_for (i32 i = 0; i < hwid * hhei; i++){
-        f32 a = log(h[i].a) / log(amax);
+        const f32 a = log(h[i].a) / log(amax);
 
-        f32 maxColor = MAX(h[i].r, MAX(h[i].g, h[i].b));
+        f32 maxColor = MAX3(h[i].r, h[i].g, h[i].b);
 
         if(maxColor <= 0)
             maxColor = 1;
 
-        u8 r = (h[i].r / h[i].a) * 0xFF * a;
-        u8 g = (h[i].g / h[i].a) * 0xFF * a;
-        u8 b = (h[i].b / h[i].a) * 0xFF * a;
+        const u8 r = (h[i].r / h[i].a) * 0xFF * a;
+        const u8 g = (h[i].g / h[i].a) * 0xFF * a;
+        const u8 b = (h[i].b / h[i].a) * 0xFF * a;
 
-        rgb_pixel_t pixel = {b, g, r, 0xFF};
-        u32 x = i % hwid;
-        u32 y = i / hwid;
+        const rgb_pixel_t pixel = {b, g, r, 0xFF};
+        const u32 x = i % hwid;
+        const u32 y = i / hwid;
         bmp_set_pixel(bmp, x, y, pixel);
 
         // progress bar
