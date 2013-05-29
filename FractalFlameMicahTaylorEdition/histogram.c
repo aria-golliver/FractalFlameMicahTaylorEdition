@@ -46,7 +46,7 @@ void histoinit(){
     if(!h){
         printf("Could not allocate %zu bytes\nPress enter to exit.", hwid * hhei * sizeof(histocell));
         getchar();
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
 }
@@ -135,7 +135,7 @@ void saveimage(){
     f32 amax = 1;
 
     for(u32 i = 0; i < hwid * hhei; i++){
-        amax = amax > h[i].a ? amax : h[i].a;
+        amax = MAX(amax, h[i].a);
     }
 
     bmp = bmp_create(hwid, hhei, 24);
@@ -171,3 +171,7 @@ void saveimage(){
     bmp_destroy(bmp);
     printf("done\n");
 }
+
+histocell histoget(u64 cell){
+    return h[cell];
+};

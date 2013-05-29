@@ -25,8 +25,14 @@ _declspec(align(64)) static f128 parametric_paramaters[MAX_VARIATIONS][4];
 int main(i32 argc, i8 **argv){
     SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
     
-    // displayinit();
+    #ifdef DISPLAY
+        displayinit();
+    #endif
+
     do {
+        #ifdef DISPLAY
+            displayreset();
+        #endif
         u64 fractal_code;
         if(fractal_name){
             free(fractal_name);
@@ -50,10 +56,25 @@ int main(i32 argc, i8 **argv){
         start = clock();
 
         i32 th_id;
+        i32 active_work_threads = 1;
 
-#pragma omp parallel private(th_id)
+        #pragma omp parallel private(th_id)
         {
             th_id = omp_get_thread_num();
+
+            #pragma omp critical
+            {
+                active_work_threads = 1;
+            }
+
+            #ifdef DISPLAY
+                if(th_id == 0){
+                    while(active_work_threads){
+                        updateDisplay();
+                    }
+                    goto end;
+                }
+            #endif
 
             _declspec(align(64)) f128 pointvecx = { 0, 0, 0, 0 };
             _declspec(align(64)) f128 pointvecy = { 0, 0, 0, 0 };
@@ -69,13 +90,9 @@ int main(i32 argc, i8 **argv){
             const u64 FLAME_ITTS_multiplier = 1000000;
 
             for(u64 j = 0; j < FLAME_ITTS * FLAME_ITTS_multiplier; j++){
-
                 if(j % FLAME_ITTS_multiplier == 0){
                     printf("...%u%", j/FLAME_ITTS_multiplier);
-                    #pragma omp master
-                    {
-                        // updateDisplay();
-                    }
+
                 }
 
                 _declspec(align(64)) affinematrix *am_itt[FLOATS_PER_VECTOR_REGISTER];
@@ -155,21 +172,21 @@ int main(i32 argc, i8 **argv){
                 //v1;
                 //v2;
                 //v3;
-                v4;
+                //v4;
                 //v5;
                 //v6;
                 //v7;
                 //v8;
-                //v9;
+                v9;
                 //v10;
                 //v11;
-                //v12;
+                v12;
                 //v13;
                 //v14;
                 v15;
                 //v16;
                 //v17;
-                v18;
+                //v18;
                 //v19;
                 //v20;
                 //v21;
@@ -185,6 +202,12 @@ int main(i32 argc, i8 **argv){
                 pointvecx = xyvec.x;
                 pointvecy = xyvec.y;
             }
+        
+#pragma omp critical
+        {
+            active_work_threads = 0;
+        }
+end:;
         }
 
         clock_t end = clock();
@@ -199,6 +222,9 @@ int main(i32 argc, i8 **argv){
         savegenome();
         printf("done\n");
         printf("-------------------------------\n");
+
+        
+
     } while(RUN_FOREVER);
 }
 
@@ -220,6 +246,10 @@ void compressimage(){
 #include "fractalgenome.h"
 #ifndef USING_GENOME
 
+
+#define MAX(a,b) (a > b ? a : b) 
+#define MAX3(a,b,c) MAX(a, MAX(b, c))
+
 void affineinit(){
     // init matrix values
     for(u32 i = 0; i < n_affine_matrix; i++){
@@ -231,17 +261,17 @@ void affineinit(){
         rdrand_f32(&(am[i].f));
 
         f32 r;
-        rdrand_f32(&r);
         f32 g;
-        rdrand_f32(&g);
         f32 b;
+        rdrand_f32(&r);
+        rdrand_f32(&g);
         rdrand_f32(&b);
         
         r = abs(r);
         g = abs(g);
         b = abs(b);
 
-        f32 maxColor = max(r,max(g,b));
+        f32 maxColor = MAX3(r,g,b);
 
         am[i].color.r  = r / maxColor;
         am[i].color.g  = g / maxColor;
@@ -257,6 +287,10 @@ void affineinit(){
     }
 }
 
+/*
+ * this should be updated so it only accounts for the variations which are selected
+ * instead of accounting for all of them
+ */
 void variationinit(){
     float total = 0;
     for(u32 i = 0; i < MAX_VARIATIONS; i++){

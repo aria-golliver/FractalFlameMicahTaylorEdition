@@ -27,6 +27,10 @@ typedef union {
     };
 } rgba8;
 
+typedef struct GLRGB8_t{
+    u8 c[3];
+} GLRGB8;
+
 union f128_t {
     _declspec(align(16)) f32 f[4];
     __m128 v;

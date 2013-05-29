@@ -3,6 +3,9 @@
 
 
 void displayinit(void);
+
 void updateDisplay(void);
+
+void displayreset(void);
 
 #endif

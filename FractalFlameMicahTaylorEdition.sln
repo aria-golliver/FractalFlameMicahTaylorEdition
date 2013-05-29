@@ -7,6 +7,8 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
+		Intel_SSA|Win32 = Intel_SSA|Win32
+		Intel_SSA|x64 = Intel_SSA|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 	EndGlobalSection
@@ -15,6 +17,10 @@ Global
 		{43D42861-FDC7-4F6A-9731-EAB3D4A5115F}.Debug|Win32.Build.0 = Debug|Win32
 		{43D42861-FDC7-4F6A-9731-EAB3D4A5115F}.Debug|x64.ActiveCfg = Debug|x64
 		{43D42861-FDC7-4F6A-9731-EAB3D4A5115F}.Debug|x64.Build.0 = Debug|x64
+		{43D42861-FDC7-4F6A-9731-EAB3D4A5115F}.Intel_SSA|Win32.ActiveCfg = Intel_SSA|Win32
+		{43D42861-FDC7-4F6A-9731-EAB3D4A5115F}.Intel_SSA|Win32.Build.0 = Intel_SSA|Win32
+		{43D42861-FDC7-4F6A-9731-EAB3D4A5115F}.Intel_SSA|x64.ActiveCfg = Intel_SSA|x64
+		{43D42861-FDC7-4F6A-9731-EAB3D4A5115F}.Intel_SSA|x64.Build.0 = Intel_SSA|x64
 		{43D42861-FDC7-4F6A-9731-EAB3D4A5115F}.Release|Win32.ActiveCfg = Release|Win32
 		{43D42861-FDC7-4F6A-9731-EAB3D4A5115F}.Release|Win32.Build.0 = Release|Win32
 		{43D42861-FDC7-4F6A-9731-EAB3D4A5115F}.Release|x64.ActiveCfg = Release|x64

@@ -4,14 +4,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
+static GLRGB8 *texture;
+static histocell *tmphistogram;
 
-
-typedef struct GLRGB8_t{
-    char r, g, b;
-} GLRGB8;
-
-static GLRGB8 texture[hwid * hhei];
+#define fullscreen 1
 
 void displayinit(void){
     if( !glfwInit() )
@@ -21,7 +19,7 @@ void displayinit(void){
     }
 
     // Open a window and create its OpenGL context
-    if( !glfwOpenWindow( hwid, hhei, 0,0,0,0, 0,0, GLFW_WINDOW ) )
+    if( !glfwOpenWindow( swid, shei, 0,0,0,0, 0,0, fullscreen ? GLFW_FULLSCREEN : GLFW_WINDOW_NO_RESIZE ) )
     {
         fprintf( stderr, "Failed to open GLFW window\n" );
 
@@ -29,51 +27,63 @@ void displayinit(void){
         exit( EXIT_FAILURE );
     }
 
-    glfwSetWindowTitle( "Spinning Triangle" );
+    displayreset();
+
+    glfwSetWindowTitle( "fractal" );
 }
+
+#define MAX(a,b) (a > b ? a : b) 
+#define MAX3(a,b,c) MAX(a, MAX(b, c))
+
+void displayreset(void){
+    if(texture)
+        memset(texture, 0, swid * shei * sizeof(histocell));
+    else
+        texture = (GLRGB8 *) calloc(swid * shei, sizeof(histocell));
+    
+    if(tmphistogram)
+        memset(tmphistogram, 0, swid * shei * sizeof(histocell));
+    else
+        tmphistogram = (histocell *) calloc(swid * shei, sizeof(histocell));
+}
+
 void updateDisplay(void){
-    memset(texture, 0, sizeof(texture));
+    memset(texture, 0, swid * shei * sizeof(GLRGB8));
+    
+    f32 amax = 1;
 
-    int width, height, x, y;
-    double t;
-    t = glfwGetTime();
-    glfwGetMousePos( &x, &y );
+    for(u64 y = 0; y < shei; y++){
+        for(u64 x = 0; x < swid; x++){
+            u64 cells = x + (y * swid);
+            u64 cellh = (x * ss) + (y * ss * ss * swid);
+            tmphistogram[cells] = histoget(cellh);
+            amax = MAX(tmphistogram[cells].a, amax);
+        }
+    }
 
-    // Get window size (may be different than the requested size)
-    glfwGetWindowSize( &width, &height );
+    for(u64 y = 0; y < shei; y++){
+        for(u64 x = 0; x < swid; x++){
+            u64 cell = x + (y * swid);
+            const f32 a = log(tmphistogram[cell].a) / log(amax);
 
-    // Special case: avoid division by zero below
-    height = height > 0 ? height : 1;
+            f32 maxColor = MAX3(tmphistogram[cell].r, tmphistogram[cell].g, tmphistogram[cell].b);
 
-    glViewport( 0, 0, width, height );
+            if(maxColor <= 0)
+                maxColor = 1;
 
-    // Clear color buffer to black
-    glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-    glClear( GL_COLOR_BUFFER_BIT );
+            const u8 r = (tmphistogram[cell].r / tmphistogram[cell].a) * 0xFF * a;
+            const u8 g = (tmphistogram[cell].g / tmphistogram[cell].a) * 0xFF * a;
+            const u8 b = (tmphistogram[cell].b / tmphistogram[cell].a) * 0xFF * a;
 
-    // Select and setup the projection matrix
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
-    gluPerspective( 65.0f, (GLfloat)width/(GLfloat)height, 1.0f, 100.0f );
-
-    // Select and setup the modelview matrix
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
-    gluLookAt( 0.0f, 1.0f, 0.0f,    // Eye-position
-               0.0f, 20.0f, 0.0f,   // View-point
-               0.0f, 0.0f, 1.0f );  // Up-vector
-
-    // Draw a rotating colorful triangle
-    glTranslatef( 0.0f, 14.0f, 0.0f );
-    glRotatef( 0.3f*(GLfloat)x + (GLfloat)t*100.0f, 0.0f, 0.0f, 1.0f );
-    glBegin( GL_TRIANGLES );
-      glColor3f( 1.0f, 0.0f, 0.0f );
-      glVertex3f( -5.0f, 0.0f, -4.0f );
-      glColor3f( 0.0f, 1.0f, 0.0f );
-      glVertex3f( 5.0f, 0.0f, -4.0f );
-      glColor3f( 0.0f, 0.0f, 1.0f );
-      glVertex3f( 0.0f, 0.0f, 6.0f );
-    glEnd();
+            const GLRGB8 pixel = {r, g, b};
+            
+            texture[cell].c[0] = r;
+            texture[cell].c[1] = g;
+            texture[cell].c[2] = b;
+        }
+    }
+    
+    glDrawPixels(swid, shei, GL_RGB, GL_UNSIGNED_BYTE, texture);
 
     // Swap buffers
     glfwSwapBuffers();
