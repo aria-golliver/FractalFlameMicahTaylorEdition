@@ -15,35 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="datatypes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="rdrand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="histogram.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="variations.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bmpfile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="vmath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="fractalgenome.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FractalGenerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="fractaldisplay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="bmpfile.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -56,5 +27,34 @@
     <ClCompile Include="fractaldisplay.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\bmpfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\datatypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fractaldisplay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FractalGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\fractalgenome.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\histogram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\rdrand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\variations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vmath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

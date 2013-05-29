@@ -29,6 +29,10 @@ _declspec(align(64)) static const __m128 halfhheivec   = { hhei/2.0, hhei/2.0, h
 _declspec(align(64)) static const __m128 hwidShrunkvec = { hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink };
 _declspec(align(64)) static const __m128 hheiShrunkvec = { hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink };
 
+/*
+ * initializes the histogram, allocates memory and zeros it
+ * also initializes the locks, each lock covers one horizontal row of the histogram
+ */
 void histoinit(){
     int numcells = hwid * hhei;
     size_t histogramSize = numcells * sizeof(histocell);
@@ -56,12 +60,16 @@ _declspec(align(64)) static u64 threadHits[12];
 _declspec(align(64)) static f128 zerovec = { 0, 0, 0, 0 };
 
 f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_id){
+    // don't plot the first 20 iterations
     if(threadHits[th_id]++ > 20){
         f128 xarr = xyvec.x;
         f128 yarr = xyvec.y;
 
+        // check to see if any points have escaped to infinity or are NaN
+        // if they have, reset them and the threadHits counter to 0
         if(vvalid(xarr.v) && vvalid(yarr.v)){
 
+            // scale the poits from fractal-space to histogram-space
             f128 scaledX;
             scaledX.v = vadd(
                            vmul(
@@ -75,6 +83,7 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
                                 hheiShrunkvec),
                             halfhheivec);
             
+            // extract each point and plot
             for (i32 i = 0; i < 4; i++){
                 u32 ix = scaledX.f[i];
                 u32 iy = scaledY.f[i];
@@ -82,21 +91,19 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
                 if(ix < hwid && iy < hhei){
                     u64 cell = ix + (iy * hwid);
                     // lock the cell
-                    //omp_set_lock(&(locks[iy]));
+                    // omp_set_lock(&(locks[iy]));
                     
-                    // forces an aligned load
+                    // load the existing data
+                    // the cache miss here takes up maybe 2/3s of the program's execution time
                     __m128 histocolor = vload((float *)&(h[cell]));
                     
 
-                    // add half the new color with the exising color
+                    // add the new color to the old
                     histocolor = vadd(
                                     histocolor,
                                     pointcolors[i].vec);
 
-                    // increment alpha channel
-                    //histocolor = vadd(histocolor, incrementAlpha);
-
-                    // write back, forced aligned
+                    // write back
                     vstore((float *)&(h[cell]), histocolor);
 
                     ++goodHits;
@@ -110,10 +117,8 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
         } else {
             ++badHits;
             threadHits[th_id] = 0;
-            xarr = zerovec;
-            yarr = zerovec;
-            xyvec.x = xarr;
-            xyvec.y = yarr;
+            xyvec.x = zerovec;
+            xyvec.y = zerovec;
         }
     }
     return xyvec;
@@ -147,14 +152,16 @@ void saveimage(){
         if(maxColor <= 0)
             maxColor = 1;
 
-        u8 r = (h[i].r / maxColor) * 0xFF * a;
-        u8 g = (h[i].g / maxColor) * 0xFF * a;
-        u8 b = (h[i].b / maxColor) * 0xFF * a;
+        u8 r = (h[i].r / h[i].a) * 0xFF * a;
+        u8 g = (h[i].g / h[i].a) * 0xFF * a;
+        u8 b = (h[i].b / h[i].a) * 0xFF * a;
 
         rgb_pixel_t pixel = {b, g, r, 0xFF};
         u32 x = i % hwid;
         u32 y = i / hwid;
         bmp_set_pixel(bmp, x, y, pixel);
+
+        // progress bar
         if((i % ((hwid * hhei) / 20)) == 0)
             printf(".");
     }

@@ -25,7 +25,7 @@ _declspec(align(64)) static f128 parametric_paramaters[MAX_VARIATIONS][4];
 int main(i32 argc, i8 **argv){
     SetPriorityClass(GetCurrentProcess(), BELOW_NORMAL_PRIORITY_CLASS);
     
-    displayinit();
+    // displayinit();
     do {
         u64 fractal_code;
         if(fractal_name){

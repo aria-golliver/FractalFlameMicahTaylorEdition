@@ -178,21 +178,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="bmpfile.h" />
-    <ClInclude Include="datatypes.h" />
-    <ClInclude Include="fractaldisplay.h" />
-    <ClInclude Include="FractalGenerator.h" />
-    <ClInclude Include="fractalgenome.h" />
-    <ClInclude Include="histogram.h" />
-    <ClInclude Include="rdrand.h" />
-    <ClInclude Include="variations.h" />
-    <ClInclude Include="vmath.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="bmpfile.c" />
     <ClCompile Include="fractaldisplay.c" />
     <ClCompile Include="FractalGenerator.c" />
     <ClCompile Include="histogram.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\bmpfile.h" />
+    <ClInclude Include="include\datatypes.h" />
+    <ClInclude Include="include\fractaldisplay.h" />
+    <ClInclude Include="include\FractalGenerator.h" />
+    <ClInclude Include="include\fractalgenome.h" />
+    <ClInclude Include="include\histogram.h" />
+    <ClInclude Include="include\rdrand.h" />
+    <ClInclude Include="include\variations.h" />
+    <ClInclude Include="include\vmath.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
