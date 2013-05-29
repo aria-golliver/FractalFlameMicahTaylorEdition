@@ -70,32 +70,36 @@ int main(i32 argc, i8 **argv){
 
             for(u64 j = 0; j < FLAME_ITTS * FLAME_ITTS_multiplier; j++){
 
-                
-
-
                 if(j % FLAME_ITTS_multiplier == 0){
                     printf("...%u%", j/FLAME_ITTS_multiplier);
                     #pragma omp master
                     {
-                        updateDisplay();
+                        // updateDisplay();
                     }
                 }
 
-                _declspec(align(64)) affinematrix *am_itt[4];
-                _declspec(align(64)) u32 jumpTable[4];
+                _declspec(align(64)) affinematrix *am_itt[FLOATS_PER_VECTOR_REGISTER];
 
-                rdrand_u32(&jumpTable[0]);
-                rdrand_u32(&jumpTable[1]);
-                rdrand_u32(&jumpTable[2]);
-                rdrand_u32(&jumpTable[3]);
+                typedef union {
+                    u32 u32[FLOATS_PER_VECTOR_REGISTER];
+                    u64 u64[FLOATS_PER_VECTOR_REGISTER / 2];
+                } jumpTable_t;
 
-                for(u32 j = 0; j < 4; j++){
-                    i32 n = jumpTable[j] % jump_table_size;
+                _declspec(align(64)) jumpTable_t jumpTable;
+
+                // fill the jump table with random bits
+                for(u32 j = 0; j < FLOATS_PER_VECTOR_REGISTER / 2; j++){
+                    rdrand_u64(&jumpTable.u64[j]);
+                }
+
+
+                // use the random bits to choose which affine transformation to apply
+                for(u32 j = 0; j < FLOATS_PER_VECTOR_REGISTER; j++){
+                    i32 n = jumpTable.u32[j] % jump_table_size;
                     am_itt[j] = affine_jump_table[n];
                 }
 
-                // this is slow I think
-                // will be fast with gather instruction on Haswell
+                // load each affine transformation into the vector registers
                 _declspec(align(64)) const __m128 affinea = { am_itt[0]->a, am_itt[1]->a, am_itt[2]->a, am_itt[3]->a };
                 _declspec(align(64)) const __m128 affineb = { am_itt[0]->b, am_itt[1]->b, am_itt[2]->b, am_itt[3]->b };
                 _declspec(align(64)) const __m128 affinec = { am_itt[0]->c, am_itt[1]->c, am_itt[2]->c, am_itt[3]->c };
@@ -103,12 +107,7 @@ int main(i32 argc, i8 **argv){
                 _declspec(align(64)) const __m128 affinee = { am_itt[0]->e, am_itt[1]->e, am_itt[2]->e, am_itt[3]->e };
                 _declspec(align(64)) const __m128 affinef = { am_itt[0]->f, am_itt[1]->f, am_itt[2]->f, am_itt[3]->f };
                 
-                __m128 colorset;
-                for(int c = 0; c < 4; c++){
-                    __m128 newcolor = am_itt[c]->color.vec;
-                    pointcolors[c].vec = vmul(vadd(pointcolors[c].vec, newcolor), halfvec);
-                }
-                
+                // apply the affine transformation to the existing points
                 _declspec(align(64)) const __m128 affinedx = vadd(
                                                                 vadd(
                                                                     vmul(affinea, pointvecx.v),
@@ -120,6 +119,12 @@ int main(i32 argc, i8 **argv){
                                                                     vmul(affined, pointvecx.v),
                                                                     vmul(affinee, pointvecy.v)),
                                                                 affinef);
+                // each affine transformation has a color associated with it, update the current color with the new one (old + new)/2
+                __m128 colorset;
+                for(int c = 0; c < FLOATS_PER_VECTOR_REGISTER; c++){
+                    __m128 newcolor = am_itt[c]->color.vec;
+                    pointcolors[c].vec = vmul(vadd(pointcolors[c].vec, newcolor), halfvec);
+                }
 
                 _declspec(align(64)) const __m128 rsq = vadd(
                                                     vmul(affinedx, affinedx),

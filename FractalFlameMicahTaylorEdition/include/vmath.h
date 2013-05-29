@@ -3,6 +3,8 @@
 
 #include <immintrin.h>
 
+#define FLOATS_PER_VECTOR_REGISTER 4
+
 static __forceinline __m128 vadd (const __m128 a, const __m128 b) { return _mm_add_ps(a, b); }
 static __forceinline __m128 vsub (const __m128 a, const __m128 b) { return _mm_sub_ps(a, b); }
 static __forceinline __m128 vmul (const __m128 a, const __m128 b) { return _mm_mul_ps(a, b); }

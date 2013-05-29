@@ -84,7 +84,7 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
                             halfhheivec);
             
             // extract each point and plot
-            for (i32 i = 0; i < 4; i++){
+            for (i32 i = 0; i < FLOATS_PER_VECTOR_REGISTER; i++){
                 const u32 ix = scaledX.f[i];
                 const u32 iy = scaledY.f[i];
 
