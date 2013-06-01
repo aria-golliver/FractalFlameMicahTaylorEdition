@@ -7,8 +7,8 @@
 #include <immintrin.h>
 #include <omp.h>
 #include <cilk\cilk.h>
+#include <cilk\cilk_api.h>
 #include <cilk\cilk_api_windows.h>
-#include <cilk\cilk_stub.h>
 #include <intrin.h>
 
 #include "datatypes.h"
@@ -142,7 +142,7 @@ void saveimage(){
 
     printf("generating image");
 
-    cilk_for (i32 i = 0; i < hwid * hhei; i++){
+    cilk_for(i32 i = 0; i < hwid * hhei; i++){
         const f32 a = log(h[i].a) / log(amax);
 
         f32 maxColor = MAX3(h[i].r, h[i].g, h[i].b);

@@ -38,8 +38,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <cilk\cilk.h>
-#include <cilk/cilk_api_windows.h>
-#include <cilk\cilk_stub.h>
+#include <cilk\cilk_api_windows.h>
+#include <cilk\common.h>
 
 #include "bmpfile.h"
 
