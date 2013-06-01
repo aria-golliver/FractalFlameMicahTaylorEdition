@@ -9,6 +9,8 @@
 static GLRGB8 *texture;
 static histocell *tmphistogram;
 
+static u32 running = 0;
+
 #define fullscreen 1
 
 void displayinit(void){
@@ -29,7 +31,27 @@ void displayinit(void){
 
     displayreset();
 
+    running = 1;
+
     glfwSetWindowTitle( "fractal" );
+}
+
+void displaydistroy(void){
+    if(texture)
+        free(texture);
+
+    texture = NULL;
+    
+    if(tmphistogram)
+        free(tmphistogram);
+
+    tmphistogram = NULL;
+
+    running = 0;
+
+    glfwTerminate();
+
+    exit(EXIT_SUCCESS);
 }
 
 #define MAX(a,b) (a > b ? a : b) 
@@ -48,8 +70,14 @@ void displayreset(void){
 }
 
 void updateDisplay(void){
-    // memset(texture, 0, swid * shei * sizeof(GLRGB8));
-    
+    if(!running)
+        return;
+
+    if(glfwGetKey( GLFW_KEY_ESC ) == GLFW_PRESS ||
+           !glfwGetWindowParam( GLFW_OPENED ))
+           displaydistroy();
+
+    // this holds the maximum number of times a cell in the histogram has been hit by the algorithm
     f32 amax = 1;
 
     for(u64 y = 0; y < shei; y++){
