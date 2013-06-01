@@ -9,6 +9,7 @@
 #include <cilk\cilk.h>
 #include <cilk\cilk_api.h>
 #include <cilk\cilk_api_windows.h>
+#include <cilk\reducer.h>
 #include <intrin.h>
 
 #include "datatypes.h"
@@ -17,7 +18,7 @@
 #include "histogram.h"
 
 // make sure everything is aligned to a 64 bit cache line
-_declspec(align(64)) static histocell h[hwid * hhei];
+_declspec(align(64)) static histocell *h;
 _declspec(align(64)) static omp_lock_t locks[hhei];
 
 _declspec(align(64)) static const __m128 xoffsetvec    = { xoffset, xoffset, xoffset, xoffset };
@@ -29,19 +30,24 @@ _declspec(align(64)) static const __m128 halfhheivec   = { hhei/2.0, hhei/2.0, h
 _declspec(align(64)) static const __m128 hwidShrunkvec = { hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink };
 _declspec(align(64)) static const __m128 hheiShrunkvec = { hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink };
 
+static u64 goodHits = 0;
+static u64 missHits = 0;
+static u64 badHits = 0;
+
+_declspec(align(64)) static u64 threadHits[12];
+
+_declspec(align(64)) static const f128 zerovec = { 0, 0, 0, 0 };
+
 /*
  * initializes the histogram, allocates memory and zeros it
  * also initializes the locks, each lock covers one horizontal row of the histogram
  */
 void histoinit(){
-    int numcells = hwid * hhei;
+    u64 numcells = hwid * hhei;
     size_t histogramSize = numcells * sizeof(histocell);
 
-    memset(h, 0, histogramSize);
-
-    memset(locks, 0, hwid * sizeof(volatile long));
-    for(int i = 0; i < hhei; i++)
-        omp_init_lock(&(locks[i]));
+    if(!h)
+        h = (histocell *) malloc(histogramSize);
 
     if(!h){
         printf("Could not allocate %zu bytes\nPress enter to exit.", hwid * hhei * sizeof(histocell));
@@ -49,15 +55,10 @@ void histoinit(){
         exit(EXIT_FAILURE);
     }
 
+    h[0:numcells].vec = zerovec.v;
+
+    omp_init_lock(&(locks[0:hhei]));
 }
-
-static u64 goodHits = 0;
-static u64 missHits = 0;
-static u64 badHits = 0;
-
-_declspec(align(64)) static u64 threadHits[12];
-
-_declspec(align(64)) static f128 zerovec = { 0, 0, 0, 0 };
 
 f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_id){
     // don't plot the first 20 iterations
@@ -97,7 +98,6 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
                     // the cache miss here takes up maybe 2/3s of the program's execution time
                     __m128 histocolor = vload((float *)&(h[cell]));
                     
-
                     // add the new color to the old
                     histocolor = vadd(
                                     histocolor,
@@ -132,11 +132,10 @@ void saveimage(){
 
     bmpfile_t *bmp;
 
-    f32 amax = 1;
+    f32 amax = __sec_reduce_max(h[0:hwid * hhei].a);
+    amax = MAX(amax, 1);
 
-    for(u32 i = 0; i < hwid * hhei; i++){
-        amax = MAX(amax, h[i].a);
-    }
+
 
     bmp = bmp_create(hwid, hhei, 24);
 
