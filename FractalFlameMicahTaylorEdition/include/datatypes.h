@@ -31,12 +31,12 @@ typedef struct GLRGB8_t{
     u8 c[3];
 } GLRGB8;
 
-union f128_t {
-    _declspec(align(16)) f32 f[4];
-    __m128 v;
+union f256_t {
+    _declspec(align(16)) f32 f[8];
+    __m256 v;
 };
 
-typedef union f128_t f128;
+typedef union f256_t f256;
 
 typedef union {
     _declspec(align(16)) struct {
@@ -57,9 +57,9 @@ typedef struct {
 } point;
 
 typedef struct {
-    _declspec(align(16)) f128 x;
-    _declspec(align(16)) f128 y;
-} f128tuple;
+    _declspec(align(32)) f256 x;
+    _declspec(align(32)) f256 y;
+} f256tuple;
 
 typedef struct {
     f32 a, b, c, d, e, f;

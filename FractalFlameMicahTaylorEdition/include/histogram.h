@@ -5,7 +5,7 @@
 #include <immintrin.h>
 void histoinit();
 
-f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_id);
+f256tuple histohit(f256tuple xyvec, const colorset pointcolors[4], const i32 th_id);
 
 void saveimage();
 
@@ -13,7 +13,7 @@ histocell histoget(u64 cell);
 
 #define swid 1920
 #define shei 1080
-#define ss 3
+#define ss 1
 
 #define hwid (swid * ss)
 #define hhei (shei * ss)

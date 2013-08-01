@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include "vmath.h"
 
 #include <immintrin.h>
 #include <omp.h>
@@ -16,19 +15,20 @@
 #include "rdrand.h"
 #include "bmpfile.h"
 #include "histogram.h"
+#include "vmath.h"
 
 // make sure everything is aligned to a 64 bit cache line
 _declspec(align(64)) static histocell *h;
 _declspec(align(64)) static omp_lock_t locks[hhei];
 
-_declspec(align(64)) static const __m128 xoffsetvec    = { xoffset, xoffset, xoffset, xoffset };
-_declspec(align(64)) static const __m128 yoffsetvec    = { yoffset, yoffset, yoffset, yoffset };
+_declspec(align(64)) static const __m256 xoffsetvec    = { xoffset, xoffset, xoffset, xoffset, xoffset, xoffset, xoffset, xoffset };
+_declspec(align(64)) static const __m256 yoffsetvec    = { yoffset, yoffset, yoffset, yoffset, yoffset, yoffset, yoffset, yoffset };
 
-_declspec(align(64)) static const __m128 halfhwidvec   = { hwid/2.0, hwid/2.0, hwid/2.0, hwid/2.0 };
-_declspec(align(64)) static const __m128 halfhheivec   = { hhei/2.0, hhei/2.0, hhei/2.0, hhei/2.0 };
+_declspec(align(64)) static const __m256 halfhwidvec   = { hwid/2.0, hwid/2.0, hwid/2.0, hwid/2.0, hwid/2.0, hwid/2.0, hwid/2.0, hwid/2.0 };
+_declspec(align(64)) static const __m256 halfhheivec   = { hhei/2.0, hhei/2.0, hhei/2.0, hhei/2.0, hhei/2.0, hhei/2.0, hhei/2.0, hhei/2.0 };
 
-_declspec(align(64)) static const __m128 hwidShrunkvec = { hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink };
-_declspec(align(64)) static const __m128 hheiShrunkvec = { hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink };
+_declspec(align(64)) static const __m256 hwidShrunkvec = { hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink, hwid/xshrink };
+_declspec(align(64)) static const __m256 hheiShrunkvec = { hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink, hhei/yshrink };
 
 static u64 goodHits = 0;
 static u64 missHits = 0;
@@ -36,7 +36,8 @@ static u64 badHits = 0;
 
 _declspec(align(64)) static u64 threadHits[12];
 
-_declspec(align(64)) static const f128 zerovec = { 0, 0, 0, 0 };
+_declspec(align(64)) static const f256 zerovec = { 0, 0, 0, 0, 0, 0, 0, 0 };
+_declspec(align(64)) static const __m128 zerovec128 = { 0, 0, 0, 0 };
 
 /*
  * initializes the histogram, allocates memory and zeros it
@@ -55,29 +56,29 @@ void histoinit(){
         exit(EXIT_FAILURE);
     }
 
-    h[0:numcells].vec = zerovec.v;
+    h[0:numcells].vec = zerovec128;
 
     omp_init_lock(&(locks[0:hhei]));
 }
 
-f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_id){
+f256tuple histohit(f256tuple xyvec, const colorset pointcolors[8], const i32 th_id){
     // don't plot the first 20 iterations
     if(threadHits[th_id]++ > 20){
-        f128 xarr = xyvec.x;
-        f128 yarr = xyvec.y;
+        f256 xarr = xyvec.x;
+        f256 yarr = xyvec.y;
 
         // check to see if any points have escaped to infinity or are NaN
         // if they have, reset them and the threadHits counter to 0
         if(vvalid(xarr.v) && vvalid(yarr.v)){
 
             // scale the points from fractal-space to histogram-space
-            f128 scaledX;
+            _declspec(align(64)) f256 scaledX;
             scaledX.v = vadd(
                            vmul(
                                vadd(xarr.v, xoffsetvec),
                                hwidShrunkvec),
                            halfhwidvec);
-            f128 scaledY;
+            _declspec(align(64)) f256 scaledY;
             scaledY.v = vadd(
                             vmul(
                                 vadd(yarr.v, yoffsetvec),
@@ -92,24 +93,24 @@ f128tuple histohit(f128tuple xyvec, const colorset pointcolors[4], const i32 th_
                 if(ix < hwid && iy < hhei){
                     const u64 cell = ix + (iy * hwid);
                     // lock the row
-                    omp_set_lock(&(locks[iy]));
+                    //omp_set_lock(&(locks[iy]));
                     
                     // load the existing data
                     // the cache miss here takes up maybe 2/3s of the program's execution time
-                    __m128 histocolor = vload((float *)&(h[cell]));
+                    __m128 histocolor = vload128((float *)&(h[cell]));
                     
                     // add the new color to the old
-                    histocolor = vadd(
+                    histocolor = vadd128(
                                     histocolor,
                                     pointcolors[i].vec);
 
                     // write back
-                    vstore((float *)&(h[cell]), histocolor);
+                    vstore128((float *)&(h[cell]), histocolor);
 
                     ++goodHits;
 
                     // unlock the cell
-                    omp_unset_lock(&(locks[iy]));
+                    //omp_unset_lock(&(locks[iy]));
                 } else {
                     ++missHits;
                 }

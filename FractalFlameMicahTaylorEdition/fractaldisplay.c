@@ -5,13 +5,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "FractalGenerator.h"
 
 static GLRGB8 *texture;
 static histocell *tmphistogram;
 
 static u32 running = 0;
-
-#define fullscreen 1
 
 void displayinit(void){
     if( !glfwInit() )
@@ -76,6 +75,12 @@ void updateDisplay(void){
     if(glfwGetKey( GLFW_KEY_ESC ) == GLFW_PRESS ||
            !glfwGetWindowParam( GLFW_OPENED ))
            displaydistroy();
+
+    if(glfwGetKey( GLFW_KEY_SPACE ) == GLFW_PRESS){
+        affineinit();
+        variationinit();
+        histoinit();
+    }
 
     // this holds the maximum number of times a cell in the histogram has been hit by the algorithm
     f32 amax = 1;

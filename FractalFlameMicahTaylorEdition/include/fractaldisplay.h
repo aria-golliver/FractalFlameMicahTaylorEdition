@@ -1,6 +1,8 @@
 #ifndef __FRACTALDISPLAY_H__
 #define __FRACTALDISPLAY_H__ __FRACTALDISPLAY_H__
 
+#define fullscreen 1
+
 // initializes the opengl display window and temporary buffers
 void displayinit(void);
 
