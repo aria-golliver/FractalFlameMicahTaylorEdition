@@ -17,7 +17,6 @@
 #include "histogram.h"
 #include "vmath.h"
 
-// make sure everything is aligned to a 64 bit cache line
 _declspec(align(64)) static histocell *h;
 _declspec(align(64)) static omp_lock_t locks[hhei];
 
